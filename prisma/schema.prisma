@@ -1,0 +1,186 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// AUTENTICACIÓN Y USUARIOS
+// ============================================
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  emailVerified DateTime?
+  name          String?
+  image         String?
+  password      String?   // Para registro con email/password
+  role          UserRole  @default(USER)
+  enabled       Boolean   @default(false) // Admin debe habilitar
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  // Relaciones
+  accounts      Account[]
+  sessions      Session[]
+  leaderGroups  ConnectionGroupLeader[] // Grupos donde es leader
+  
+  @@index([email])
+  @@map("users")
+}
+
+enum UserRole {
+  USER
+  LEADER
+  ADMIN
+}
+
+// Tablas de NextAuth
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+  
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+// ============================================
+// GRUPOS DE CONEXIÓN
+// ============================================
+
+model ConnectionGroup {
+  id               String   @id @default(cuid())
+  name             String   // Nombre del grupo
+  weekday          Weekday  // Día de la semana de reunión
+  description      String?  @db.Text
+  isActive         Boolean  @default(true)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  
+  // Relaciones
+  leaders          ConnectionGroupLeader[]
+  meetings         Meeting[]
+  
+  @@index([weekday])
+  @@index([isActive])
+  @@map("connection_groups")
+}
+
+enum Weekday {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+  SUNDAY
+}
+
+// Tabla intermedia para Leaders (many-to-many)
+model ConnectionGroupLeader {
+  id              String   @id @default(cuid())
+  groupId         String
+  userId          String
+  isPrimary       Boolean  @default(false) // Leader principal
+  assignedAt      DateTime @default(now())
+  
+  // Relaciones
+  group           ConnectionGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([groupId, userId]) // Un usuario no puede ser leader duplicado en el mismo grupo
+  @@index([groupId])
+  @@index([userId])
+  @@index([isPrimary])
+  @@map("connection_group_leaders")
+}
+
+// ============================================
+// REUNIONES
+// ============================================
+
+model Meeting {
+  id          String   @id @default(cuid())
+  groupId     String
+  date        DateTime // Fecha y hora de la reunión
+  address     String   // Dirección de la reunión
+  description String?  @db.Text
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relaciones
+  group       ConnectionGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  attendance  MeetingAttendance?
+  photos      MeetingPhoto[]
+  
+  @@index([groupId])
+  @@index([date])
+  @@map("meetings")
+}
+
+// ============================================
+// ASISTENCIA Y FOTOS
+// ============================================
+
+model MeetingAttendance {
+  id            String   @id @default(cuid())
+  meetingId     String   @unique
+  adultsCount   Int      @default(0)
+  kidsCount     Int      @default(0)
+  observations  String?  @db.Text
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  // Relaciones
+  meeting       Meeting  @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  
+  @@map("meeting_attendance")
+}
+
+model MeetingPhoto {
+  id        String   @id @default(cuid())
+  meetingId String
+  url       String   // URL de la imagen
+  caption   String?
+  uploadedAt DateTime @default(now())
+  
+  // Relaciones
+  meeting   Meeting  @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  
+  @@index([meetingId])
+  @@map("meeting_photos")
+}
