@@ -71,7 +71,7 @@ async function main() {
             groupId: group1.id,
             date: new Date('2026-01-23T19:00:00Z'),
             address: '123 Main St, North Side',
-            topic: 'Faith in Action',
+            description: 'Faith in Action',
         }
     })
 
@@ -80,7 +80,7 @@ async function main() {
             groupId: group2.id,
             date: new Date('2026-01-21T20:00:00Z'),
             address: 'Central Coffee Shop',
-            topic: 'Workplace Ethics',
+            description: 'Workplace Ethics',
         }
     })
 
