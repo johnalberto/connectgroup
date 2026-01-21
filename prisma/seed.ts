@@ -3,34 +3,47 @@ import { PrismaClient } from '@prisma/client'
 const prisma = new PrismaClient()
 
 async function main() {
+    // Import bcrypt (assuming it's installed)
+    const bcrypt = await import("bcryptjs");
+    const passwordHash = await bcrypt.hash('123456', 10);
+
     // 1. Create Users (Leaders)
     const user1 = await prisma.user.upsert({
         where: { email: 'juan@example.com' },
-        update: {},
+        update: {
+            password: passwordHash
+        },
         create: {
             email: 'juan@example.com',
             name: 'Juan Perez',
             role: 'LEADER',
+            password: passwordHash,
         },
     })
 
     const user2 = await prisma.user.upsert({
         where: { email: 'maria@example.com' },
-        update: {},
+        update: {
+            password: passwordHash
+        },
         create: {
             email: 'maria@example.com',
             name: 'Maria Garcia',
             role: 'LEADER',
+            password: passwordHash,
         },
     })
 
     const user3 = await prisma.user.upsert({
         where: { email: 'admin@example.com' },
-        update: {},
+        update: {
+            password: passwordHash
+        },
         create: {
             email: 'admin@example.com',
             name: 'Admin User',
             role: 'ADMIN',
+            password: passwordHash,
         },
     })
 

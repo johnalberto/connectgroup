@@ -13,8 +13,11 @@ import {
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
+import { auth } from "@/lib/auth"
+import { AdminSidebarNav } from "@/components/layout/AdminSidebarNav"
 
-export function Sidebar() {
+export async function Sidebar() {
+    const session = await auth()
     return (
         <div className="hidden border-r bg-muted/40 md:block max-w-[280px] w-full h-screen sticky top-0">
             <div className="flex h-full max-h-screen flex-col gap-2">
@@ -51,6 +54,9 @@ export function Sidebar() {
                             <Package className="h-4 w-4" />
                             My Meetings
                         </Link>
+                        {session?.user?.role === 'ADMIN' && (
+                            <AdminSidebarNav />
+                        )}
                     </nav>
                 </div>
             </div>

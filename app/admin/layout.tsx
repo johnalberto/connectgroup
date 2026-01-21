@@ -1,10 +1,13 @@
 import { Sidebar } from "@/components/layout/Sidebar";
+import { UserNav } from "@/components/layout/UserNav";
+import { auth } from "@/lib/auth";
 
-export default function AdminLayout({
+export default async function AdminLayout({
     children,
 }: {
     children: React.ReactNode
 }) {
+    const session = await auth();
     return (
         <div className="flex min-h-screen">
             <Sidebar />
@@ -14,7 +17,7 @@ export default function AdminLayout({
                         {/* Admin Breadcrumbs or Title could go here */}
                         <h1 className="font-semibold text-lg">Admin Console</h1>
                     </div>
-                    {/* User Nav / Sign out */}
+                    {session?.user && <UserNav user={session.user} />}
                 </header>
                 <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
                     {children}

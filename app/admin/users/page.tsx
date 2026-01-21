@@ -1,29 +1,23 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import { MoreHorizontal, Search } from "lucide-react";
+import { getUsers } from "@/app/admin/actions";
+import { UserActions } from "@/components/admin/UserActions";
+import { UserDialog } from "@/components/admin/UserDialog";
+import { format } from "date-fns";
 
-// Mock Users
-const USERS = [
-    { id: 1, name: "Juana Perez", email: "juana@example.com", role: "LEADER", status: "Active" },
-    { id: 2, name: "Carlos Ruiz", email: "carlos@example.com", role: "USER", status: "Pending" },
-    { id: 3, name: "Admin User", email: "admin@example.com", role: "ADMIN", status: "Active" },
-]
+export default async function UsersPage() {
+    const { success, data: users } = await getUsers();
 
-export default function UsersPage() {
+    if (!success || !users) {
+        return <div>Failed to load users.</div>
+    }
+
     return (
         <div className="space-y-4">
             <div className="flex items-center justify-between">
                 <h2 className="text-2xl font-bold tracking-tight">Users</h2>
-                <Button>Add User</Button>
+                <UserDialog />
             </div>
 
             <div className="flex w-full items-center space-x-2">
@@ -38,32 +32,28 @@ export default function UsersPage() {
                 </CardHeader>
                 <CardContent>
                     <div className="space-y-4">
-                        {USERS.map((user) => (
+                        {users.map((user) => (
                             <div key={user.id} className="flex items-center justify-between border-b pb-4 last:border-0 last:pb-0">
                                 <div className="space-y-1">
-                                    <p className="text-sm font-medium leading-none">{user.name}</p>
+                                    <p className="text-sm font-medium leading-none">{user.name || "No Name"}</p>
                                     <p className="text-sm text-muted-foreground">{user.email}</p>
                                 </div>
                                 <div className="flex items-center gap-4">
-                                    <div className="text-sm">{user.role}</div>
-                                    <div className={`text-xs px-2 py-1 rounded-full ${user.status === 'Active' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
-                                        {user.status}
+                                    <div className="text-xs text-muted-foreground">
+                                        Joined {format(new Date(user.createdAt), "MMM d, yyyy")}
                                     </div>
-                                    <DropdownMenu>
-                                        <DropdownMenuTrigger asChild>
-                                            <Button variant="ghost" className="h-8 w-8 p-0">
-                                                <span className="sr-only">Open menu</span>
-                                                <MoreHorizontal className="h-4 w-4" />
-                                            </Button>
-                                        </DropdownMenuTrigger>
-                                        <DropdownMenuContent align="end">
-                                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                            <DropdownMenuItem>Edit details</DropdownMenuItem>
-                                            <DropdownMenuItem>Change Role</DropdownMenuItem>
-                                            <DropdownMenuSeparator />
-                                            <DropdownMenuItem className="text-red-600">Delete user</DropdownMenuItem>
-                                        </DropdownMenuContent>
-                                    </DropdownMenu>
+                                    <div className={`text-xs px-2 py-1 rounded-full font-medium border ${user.role === 'ADMIN' ? 'bg-purple-100 text-purple-700 border-purple-200' :
+                                        user.role === 'LEADER' ? 'bg-blue-100 text-blue-700 border-blue-200' :
+                                            'bg-gray-100 text-gray-700 border-gray-200'
+                                        }`}>
+                                        {user.role}
+                                    </div>
+                                    <UserActions
+                                        userId={user.id}
+                                        currentRole={user.role}
+                                        userName={user.name || ""}
+                                        userEmail={user.email}
+                                    />
                                 </div>
                             </div>
                         ))}

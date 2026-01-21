@@ -1,45 +1,39 @@
 import { Navbar } from "@/components/layout/Navbar";
+
 import { GroupCard } from "@/components/groups/GroupCard";
-import { ConnectorGroup } from "@/lib/types";
+import { prisma } from "@/lib/prisma";
 
-// Mock data for now until DB is connected
-const MOCK_GROUPS: ConnectorGroup[] = [
-    {
-        id: "1",
-        name: "Northside Youth",
-        weekday: "FRIDAY",
-        description: "A group for young adults living in the north side.",
-        isActive: true,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        leaders: [{ user: { name: "Juan Perez", image: null } }],
-        meetings: [{ date: new Date('2026-01-23'), address: "123 Main St, North A" }]
-    },
-    {
-        id: "2",
-        name: "Downtown Professionals",
-        weekday: "WEDNESDAY",
-        description: "Connecting professionals working in downtown.",
-        isActive: true,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        leaders: [{ user: { name: "Maria Garcia", image: null } }],
-        meetings: [{ date: new Date('2026-01-21'), address: "Central Coffee Shop" }]
-    },
-    {
-        id: "3",
-        name: "Families East",
-        weekday: "SUNDAY",
-        description: "Family focused group meeting after service.",
-        isActive: true,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        leaders: [{ user: { name: "Carlos & Ana", image: null } }],
-        meetings: [{ date: new Date('2026-01-25'), address: "Park Ave 456" }]
-    }
-];
+export const dynamic = "force-dynamic";
 
-export default function GroupsPage() {
+export default async function GroupsPage() {
+    // Fetch active groups from DB
+    const groups = await prisma.connectionGroup.findMany({
+        where: {
+            isActive: true
+        },
+        include: {
+            leaders: {
+                include: {
+                    user: true
+                }
+            },
+            meetings: {
+                where: {
+                    date: {
+                        gte: new Date()
+                    }
+                },
+                orderBy: {
+                    date: 'asc'
+                },
+                take: 1
+            }
+        },
+        orderBy: {
+            createdAt: 'desc'
+        }
+    });
+
     return (
         <div className="flex min-h-screen flex-col">
             <Navbar />
@@ -50,11 +44,17 @@ export default function GroupsPage() {
                         <p className="text-muted-foreground">Discover a community that fits your schedule and location.</p>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {MOCK_GROUPS.map(group => (
-                            <GroupCard key={group.id} group={group} />
-                        ))}
-                    </div>
+                    {groups.length === 0 ? (
+                        <div className="text-center py-12">
+                            <p className="text-muted-foreground">No active groups found at this time.</p>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {groups.map(group => (
+                                <GroupCard key={group.id} group={group} />
+                            ))}
+                        </div>
+                    )}
                 </div>
             </main>
         </div>

@@ -1,3 +1,5 @@
+"use client"
+
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import {
@@ -10,8 +12,13 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Navbar } from "@/components/layout/Navbar"
+import { signIn } from "next-auth/react"
 
 export default function SignUpPage() {
+    const handleGoogleSignUp = async () => {
+        await signIn("google", { callbackUrl: "/dashboard" })
+    }
+
     return (
         <div className="flex min-h-screen flex-col">
             <Navbar />
@@ -48,10 +55,10 @@ export default function SignUpPage() {
                                 <Label htmlFor="password">Password</Label>
                                 <Input id="password" type="password" />
                             </div>
-                            <Button type="submit" className="w-full">
-                                Create an account
+                            <Button type="submit" className="w-full" disabled>
+                                Create an account (Coming Soon)
                             </Button>
-                            <Button variant="outline" className="w-full">
+                            <Button variant="outline" className="w-full" onClick={handleGoogleSignUp}>
                                 Sign up with Google
                             </Button>
                         </div>
