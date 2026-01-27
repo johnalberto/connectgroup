@@ -22,6 +22,9 @@ export default function Home() {
                                 <Link href="/groups">
                                     <Button size="lg">Find a Group</Button>
                                 </Link>
+                                <Link href="/meetings">
+                                    <Button size="lg" variant="secondary">Find a Meeting</Button>
+                                </Link>
                                 <Link href="/auth/signup">
                                     <Button variant="outline" size="lg">Lead a Group</Button>
                                 </Link>

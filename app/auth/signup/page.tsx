@@ -15,9 +15,7 @@ import { Navbar } from "@/components/layout/Navbar"
 import { signIn } from "next-auth/react"
 
 export default function SignUpPage() {
-    const handleGoogleSignUp = async () => {
-        await signIn("google", { callbackUrl: "/dashboard" })
-    }
+
 
     return (
         <div className="flex min-h-screen flex-col">
@@ -25,6 +23,9 @@ export default function SignUpPage() {
             <div className="flex-1 flex items-center justify-center bg-muted/40 p-4">
                 <Card className="mx-auto max-w-sm">
                     <CardHeader>
+                        <div className="flex justify-center mb-4">
+                            <img src="/logo.jpg" alt="Logo" className="h-16 w-auto object-contain" />
+                        </div>
                         <CardTitle className="text-xl">Sign Up</CardTitle>
                         <CardDescription>
                             Enter your information to create an account
@@ -57,9 +58,6 @@ export default function SignUpPage() {
                             </div>
                             <Button type="submit" className="w-full" disabled>
                                 Create an account (Coming Soon)
-                            </Button>
-                            <Button variant="outline" className="w-full" onClick={handleGoogleSignUp}>
-                                Sign up with Google
                             </Button>
                         </div>
                         <div className="mt-4 text-center text-sm">

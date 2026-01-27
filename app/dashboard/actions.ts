@@ -59,6 +59,9 @@ export async function getGroupDetails(groupId: string) {
                 orderBy: {
                     date: "desc",
                 },
+                include: {
+                    attendance: true
+                }
             },
             leaders: {
                 include: {
@@ -175,9 +178,7 @@ export async function getMyMeetings() {
                     }
                 }
             },
-            date: {
-                gte: new Date() // Only upcoming? Or all? User probably wants upcoming mainly. Let's do all but sorted.
-            }
+
         },
         include: {
             group: true

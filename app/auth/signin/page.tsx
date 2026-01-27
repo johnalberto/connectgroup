@@ -49,9 +49,7 @@ export default function SignInPage() {
         }
     }
 
-    const handleGoogleLogin = async () => {
-        await signIn("google", { callbackUrl: "/dashboard" })
-    }
+
 
     return (
         <div className="flex min-h-screen flex-col">
@@ -59,6 +57,9 @@ export default function SignInPage() {
             <div className="flex-1 flex items-center justify-center bg-muted/40 p-4">
                 <Card className="w-full max-w-sm">
                     <CardHeader>
+                        <div className="flex justify-center mb-4">
+                            <img src="/logo.jpg" alt="Logo" className="h-16 w-auto object-contain" />
+                        </div>
                         <CardTitle className="text-2xl">Login</CardTitle>
                         <CardDescription>
                             Enter your email below to login to your account.
@@ -101,14 +102,6 @@ export default function SignInPage() {
                         <CardFooter className="flex flex-col gap-4">
                             <Button className="w-full" type="submit" disabled={loading}>
                                 {loading ? "Signing in..." : "Sign in"}
-                            </Button>
-                            <Button
-                                variant="outline"
-                                className="w-full"
-                                type="button"
-                                onClick={handleGoogleLogin}
-                            >
-                                Sign in with Google
                             </Button>
                             <div className="mt-4 text-center text-sm">
                                 Don&apos;t have an account?{" "}

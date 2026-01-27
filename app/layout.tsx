@@ -8,6 +8,9 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 export const metadata: Metadata = {
     title: "Connection Groups",
     description: "Manage your connection groups easily",
+    icons: {
+        icon: "/logo.jpg",
+    },
 };
 
 export default function RootLayout({

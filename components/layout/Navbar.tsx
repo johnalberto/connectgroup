@@ -20,7 +20,9 @@ export function Navbar() {
                     href="/"
                     className="flex items-center gap-2 text-lg font-semibold md:text-base"
                 >
-                    <Package2 className="h-6 w-6" />
+                    <div className="relative h-8 w-8">
+                        <img src="/logo.jpg" alt="Logo" className="h-full w-full object-contain" />
+                    </div>
                     <span className="sr-only">Connection Groups</span>
                 </Link>
                 <Link
@@ -28,6 +30,12 @@ export function Navbar() {
                     className="text-muted-foreground transition-colors hover:text-foreground"
                 >
                     Groups
+                </Link>
+                <Link
+                    href="/meetings"
+                    className="text-muted-foreground transition-colors hover:text-foreground"
+                >
+                    Meetings
                 </Link>
                 <Link
                     href="/dashboard"
@@ -53,7 +61,9 @@ export function Navbar() {
                             href="/"
                             className="flex items-center gap-2 text-lg font-semibold"
                         >
-                            <Package2 className="h-6 w-6" />
+                            <div className="relative h-8 w-8">
+                                <img src="/logo.jpg" alt="Logo" className="h-full w-full object-contain" />
+                            </div>
                             <span className="sr-only">Connection Groups</span>
                         </Link>
                         <Link href="/" className="hover:text-foreground">

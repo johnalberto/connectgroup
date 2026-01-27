@@ -1,5 +1,6 @@
 import { getGroupDetails } from "@/app/dashboard/actions"
 import { MeetingDialog } from "@/components/meetings/MeetingDialog"
+import { AttendanceDialog } from "@/components/groups/AttendanceDialog"
 import {
     Card,
     CardContent,
@@ -88,6 +89,8 @@ export default async function GroupDetailsPage({
                                         </CardTitle>
                                     </div>
                                     <div className="flex items-center gap-2">
+                                        {/* Attendance */}
+                                        <AttendanceDialog meetingId={meeting.id} initialData={meeting.attendance} />
                                         {/* Edit Mode */}
                                         <MeetingDialog groupId={group.id} meeting={meeting} />
                                     </div>
@@ -98,9 +101,13 @@ export default async function GroupDetailsPage({
                                             <p>{meeting.description}</p>
                                         )}
                                         <div className="flex items-center gap-1 mt-1">
-                                            <MapPin className="h-3 w-3" />
                                             <span>{meeting.address}</span>
                                         </div>
+                                        {meeting.attendance && (
+                                            <div className="mt-2 text-xs font-semibold text-primary/80">
+                                                Attendance: {meeting.attendance.adultsCount} Adults, {meeting.attendance.kidsCount} Kids
+                                            </div>
+                                        )}
                                     </div>
                                 </CardContent>
                             </Card>
