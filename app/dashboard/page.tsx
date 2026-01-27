@@ -2,8 +2,17 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Users, Calendar, ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { getMyMeetings } from "./actions";
+import { format } from "date-fns";
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+    const allMeetings = await getMyMeetings();
+    const now = new Date();
+    const upcomingMeetings = allMeetings
+        .filter(m => new Date(m.date) >= now)
+        .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+        .slice(0, 5);
+
     return (
         <>
             <div className="flex items-center">
@@ -38,18 +47,6 @@ export default function DashboardPage() {
                         </p>
                     </CardContent>
                 </Card>
-                <Card x-chunk="dashboard-01-chunk-2">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Sales</CardTitle>
-                        <Calendar className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">+12,234</div>
-                        <p className="text-xs text-muted-foreground">
-                            +19% from last month
-                        </p>
-                    </CardContent>
-                </Card>
             </div>
             <div className="grid gap-4 md:gap-8 lg:grid-cols-2 xl:grid-cols-3">
                 <Card className="xl:col-span-2" x-chunk="dashboard-01-chunk-4">
@@ -69,19 +66,20 @@ export default function DashboardPage() {
                     </CardHeader>
                     <CardContent>
                         <div className="space-y-4">
-                            {/* Mock List */}
-                            <div className="flex items-center gap-4">
-                                <div className="flex flex-col">
-                                    <span className="font-semibold">Northside Youth</span>
-                                    <span className="text-xs text-muted-foreground">Friday, 7:00 PM</span>
-                                </div>
-                            </div>
-                            <div className="flex items-center gap-4">
-                                <div className="flex flex-col">
-                                    <span className="font-semibold">Downtown Professionals</span>
-                                    <span className="text-xs text-muted-foreground">Wednesday, 8:00 PM</span>
-                                </div>
-                            </div>
+                            {upcomingMeetings.length === 0 ? (
+                                <p className="text-sm text-muted-foreground">No upcoming meetings scheduled.</p>
+                            ) : (
+                                upcomingMeetings.map((meeting) => (
+                                    <div key={meeting.id} className="flex items-center gap-4">
+                                        <div className="flex flex-col">
+                                            <span className="font-semibold">{meeting.group.name}</span>
+                                            <span className="text-xs text-muted-foreground">
+                                                {format(new Date(meeting.date), "dd/MMM/yyyy • h:mm a")}
+                                            </span>
+                                        </div>
+                                    </div>
+                                ))
+                            )}
                         </div>
                     </CardContent>
                 </Card>
