@@ -1,5 +1,6 @@
 import { Navbar } from "@/components/layout/Navbar"
 import { prisma } from "@/lib/prisma"
+import React from "react"
 import { format } from "date-fns"
 import { CalendarIcon, MapPin, Users } from "lucide-react"
 import Link from "next/link"
@@ -73,7 +74,9 @@ export default async function MeetingsPage({
 
                         {/* Search Component */}
                         <div className="bg-background p-4 rounded-lg border shadow-sm">
-                            <MeetingSearch />
+                            <React.Suspense fallback={<div className="h-10 w-full animate-pulse bg-muted rounded-md" />}>
+                                <MeetingSearch />
+                            </React.Suspense>
                         </div>
                     </div>
 

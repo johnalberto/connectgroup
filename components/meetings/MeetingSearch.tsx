@@ -22,8 +22,8 @@ export function MeetingSearch() {
     const router = useRouter()
 
     const [date, setDate] = React.useState<DateRange | undefined>(() => {
-        const from = searchParams.get("from")
-        const to = searchParams.get("to")
+        const from = searchParams?.get("from")
+        const to = searchParams?.get("to")
         if (from) {
             return {
                 from: new Date(from),
@@ -34,7 +34,7 @@ export function MeetingSearch() {
     })
 
     const handleSearch = (term: string) => {
-        const params = new URLSearchParams(searchParams)
+        const params = new URLSearchParams(searchParams?.toString())
         if (term) {
             params.set("q", term)
         } else {
@@ -45,7 +45,7 @@ export function MeetingSearch() {
 
     const handleDateSelect = (range: DateRange | undefined) => {
         setDate(range)
-        const params = new URLSearchParams(searchParams)
+        const params = new URLSearchParams(searchParams?.toString())
         if (range?.from) {
             params.set("from", range.from.toISOString())
         } else {
@@ -66,7 +66,7 @@ export function MeetingSearch() {
                 <Input
                     placeholder="Search meetings (e.g. 'Youth', 'Bible Study')..."
                     className="pl-8"
-                    defaultValue={searchParams.get("q")?.toString()}
+                    defaultValue={searchParams?.get("q")?.toString()}
                     onChange={(e) => handleSearch(e.target.value)}
                 />
             </div>
