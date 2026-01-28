@@ -1,5 +1,6 @@
 import { Sidebar } from "@/components/layout/Sidebar";
 import { UserNav } from "@/components/layout/UserNav";
+import { MobileSidebar } from "@/components/layout/MobileSidebar";
 import { auth } from "@/lib/auth";
 
 export default async function AdminLayout({
@@ -13,6 +14,7 @@ export default async function AdminLayout({
             <Sidebar />
             <div className="flex-1 flex flex-col">
                 <header className="flex h-14 items-center gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6">
+                    <MobileSidebar role={session?.user?.role} />
                     <div className="w-full flex-1">
                         {/* Admin Breadcrumbs or Title could go here */}
                         <h1 className="font-semibold text-lg">Admin Console</h1>
