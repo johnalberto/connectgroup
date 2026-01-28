@@ -6,6 +6,8 @@ import { UserActions } from "@/components/admin/UserActions";
 import { UserDialog } from "@/components/admin/UserDialog";
 import { format } from "date-fns";
 
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+
 export default async function UsersPage() {
     const { success, data: users } = await getUsers();
 
@@ -34,9 +36,17 @@ export default async function UsersPage() {
                     <div className="space-y-4">
                         {users.map((user) => (
                             <div key={user.id} className="flex items-center justify-between border-b pb-4 last:border-0 last:pb-0">
-                                <div className="space-y-1">
-                                    <p className="text-sm font-medium leading-none">{user.name || "No Name"}</p>
-                                    <p className="text-sm text-muted-foreground">{user.email}</p>
+                                <div className="flex items-center gap-3">
+                                    <Avatar className="h-9 w-9">
+                                        <AvatarImage src={user.image || ""} alt={user.name || "User"} />
+                                        <AvatarFallback>
+                                            {user.name ? user.name.slice(0, 2).toUpperCase() : "U"}
+                                        </AvatarFallback>
+                                    </Avatar>
+                                    <div className="space-y-1">
+                                        <p className="text-sm font-medium leading-none">{user.name || "No Name"}</p>
+                                        <p className="text-sm text-muted-foreground">{user.email}</p>
+                                    </div>
                                 </div>
                                 <div className="flex items-center gap-4">
                                     <div className="text-xs text-muted-foreground">

@@ -9,9 +9,10 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
-import { CircleUser } from "lucide-react"
 import { signOut } from "next-auth/react"
 import { User } from "next-auth"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import Link from "next/link"
 
 interface UserNavProps {
     user: User
@@ -21,20 +22,26 @@ export function UserNav({ user }: UserNavProps) {
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
-                <Button variant="secondary" size="icon" className="rounded-full">
-                    <CircleUser className="h-5 w-5" />
-                    <span className="sr-only">Toggle user menu</span>
+                <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                    <Avatar className="h-10 w-10">
+                        <AvatarImage src={user.image || ""} alt={user.name || "User"} />
+                        <AvatarFallback>{user.name ? user.name.slice(0, 2).toUpperCase() : "U"}</AvatarFallback>
+                    </Avatar>
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <DropdownMenuLabel>
+                    <div className="flex flex-col space-y-1">
+                        <p className="text-sm font-medium leading-none">{user.name}</p>
+                        <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
+                    </div>
+                </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem className="flex flex-col items-start">
-                    <span className="font-medium">{user.name}</span>
-                    <span className="text-xs text-muted-foreground">{user.email}</span>
+                <DropdownMenuItem asChild>
+                    <Link href="/dashboard/settings" className="w-full cursor-pointer">Settings</Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => signOut()}>Sign out</DropdownMenuItem>
+                <DropdownMenuItem className="cursor-pointer" onClick={() => signOut()}>Sign out</DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>
     )

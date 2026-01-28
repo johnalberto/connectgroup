@@ -190,3 +190,31 @@ export async function getMyMeetings() {
 
     return meetings
 }
+
+const UpdateProfileSchema = z.object({
+    name: z.string().min(2),
+    imageBase64: z.string().optional(),
+})
+
+export async function updateProfile(data: z.infer<typeof UpdateProfileSchema>) {
+    const session = await auth()
+    if (!session?.user) throw new Error("Unauthorized")
+
+    // Optional: Add server-side validation for image size here if needed
+    // The client should curb this, but checking string length is a safety measure.
+    // 1MB ~ 1.33 Million chars in Base64.
+    if (data.imageBase64 && data.imageBase64.length > 2000000) {
+        throw new Error("Image too large")
+    }
+
+    await prisma.user.update({
+        where: { id: session.user.id },
+        data: {
+            name: data.name,
+            image: data.imageBase64 || undefined,
+        },
+    })
+
+    revalidatePath("/dashboard")
+    return { success: true }
+}

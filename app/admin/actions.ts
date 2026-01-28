@@ -28,6 +28,7 @@ export async function getUsers() {
                 role: true,
                 createdAt: true,
                 enabled: true,
+                image: true,
                 _count: {
                     select: {
                         leaderGroups: true

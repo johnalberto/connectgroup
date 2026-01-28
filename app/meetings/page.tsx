@@ -6,6 +6,7 @@ import { CalendarIcon, MapPin, Users } from "lucide-react"
 import Link from "next/link"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { MeetingSearch } from "@/components/meetings/MeetingSearch"
+import { AvatarStack } from "@/components/ui/avatar-stack"
 
 export const dynamic = "force-dynamic"
 
@@ -53,7 +54,15 @@ export default async function MeetingsPage({
     const meetings = await prisma.meeting.findMany({
         where: whereClause,
         include: {
-            group: true
+            group: {
+                include: {
+                    leaders: {
+                        include: {
+                            user: true
+                        }
+                    }
+                }
+            }
         },
         orderBy: {
             date: 'asc'
@@ -92,17 +101,27 @@ export default async function MeetingsPage({
                     ) : (
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                             {meetings.map((meeting) => (
-                                <Card key={meeting.id} className="flex flex-col">
+                                <Card key={meeting.id} className="flex flex-col hover:shadow-md transition-shadow group-card">
                                     <CardHeader>
-                                        <div className="flex items-center gap-2">
-                                            <CalendarIcon className="h-5 w-5 text-primary" />
-                                            <CardTitle className="text-base">
-                                                {format(new Date(meeting.date), "EEEE, MMMM do, yyyy")}
-                                                <br />
-                                                <span className="text-sm font-normal text-muted-foreground">
+                                        <div className="flex items-start justify-between">
+                                            <div className="space-y-1">
+                                                <CardTitle className="text-base flex items-center gap-2">
+                                                    <CalendarIcon className="h-4 w-4 text-primary" />
+                                                    {format(new Date(meeting.date), "EEE, MMM do")}
+                                                </CardTitle>
+                                                <div className="text-sm text-muted-foreground pl-6">
                                                     {format(new Date(meeting.date), "h:mm a")}
-                                                </span>
-                                            </CardTitle>
+                                                </div>
+                                            </div>
+
+                                            {/* Avatar Stack for Group Leaders */}
+                                            <div className="pl-2">
+                                                <AvatarStack
+                                                    users={meeting.group.leaders.map(l => ({ name: l.user.name, image: l.user.image }))}
+                                                    size="sm"
+                                                    max={3}
+                                                />
+                                            </div>
                                         </div>
                                     </CardHeader>
                                     <CardContent className="flex-1 flex flex-col gap-3">
