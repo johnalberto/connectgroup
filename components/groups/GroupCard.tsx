@@ -36,13 +36,21 @@ export function GroupCard({ group }: GroupCardProps) {
                 )}
 
                 <div className="space-y-3 pt-2">
-                    <div className="flex items-center justify-between">
-                        <span className="text-xs font-medium text-muted-foreground">Leaders</span>
-                        <AvatarStack users={leaders} size="sm" max={4} />
+                    <div className="flex flex-col gap-1">
+                        <div className="flex items-center justify-between">
+                            <span className="text-xs font-medium text-muted-foreground">Leaders</span>
+                            <AvatarStack users={leaders} size="sm" max={4} />
+                        </div>
+                        <p className="text-sm font-medium text-foreground line-clamp-1">
+                            {leaders.map(l => l.name).join(", ")}
+                        </p>
                     </div>
 
                     {nextMeeting && (
                         <div className="bg-muted/50 rounded-lg p-3 text-sm space-y-2">
+                            <p className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground">
+                                Next Meeting
+                            </p>
                             <div className="flex items-center gap-2">
                                 <Calendar className="h-4 w-4 text-primary" />
                                 <span className="font-medium">{new Date(nextMeeting.date).toLocaleDateString()}</span>
