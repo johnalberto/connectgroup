@@ -1,7 +1,7 @@
 import { Client } from "@microsoft/microsoft-graph-client";
 import { ClientSecretCredential } from "@azure/identity";
 
-const domain = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+const domain = process.env.NEXT_PUBLIC_APP_URL || "https://connectgroup.vercel.app";
 
 // Microsoft Graph Auth
 const tenantId = process.env.AZURE_TENANT_ID;
