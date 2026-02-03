@@ -23,7 +23,11 @@ export default async function MeetingsPage({
     if (from || to) {
         whereClause.date = {}
         if (from) whereClause.date.gte = new Date(from)
-        if (to) whereClause.date.lte = new Date(to)
+        if (to) {
+            const toDate = new Date(to)
+            toDate.setHours(23, 59, 59, 999)
+            whereClause.date.lte = toDate
+        }
     } else {
         // Default to upcoming if no date selected
         whereClause.date = {

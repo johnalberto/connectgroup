@@ -226,6 +226,107 @@ const UpdateGroupSchemaStr = z.object({
     description: z.string().optional(),
 })
 
+export async function getLeaderStats() {
+    const session = await auth()
+    if (!session?.user) throw new Error("Unauthorized")
+
+    // Get groups led by user
+    const leaderGroups = await prisma.connectionGroupLeader.findMany({
+        where: { userId: session.user.id! },
+        select: { groupId: true }
+    })
+
+    const groupIds = leaderGroups.map(lg => lg.groupId)
+
+    if (groupIds.length === 0) {
+        return {
+            totalMeetings: 0,
+            avgAttendance: 0,
+            totalGroups: 0
+        }
+    }
+
+    // Get meetings for these groups
+    const meetings = await prisma.meeting.findMany({
+        where: { groupId: { in: groupIds } },
+        include: { attendance: true }
+    })
+
+    const totalMeetings = meetings.length
+
+    let totalAttendance = 0
+    let meetingsWithAttendance = 0
+
+    meetings.forEach(m => {
+        if (m.attendance) {
+            totalAttendance += (m.attendance.adultsCount + m.attendance.kidsCount)
+            meetingsWithAttendance++
+        }
+    })
+
+    const avgAttendance = meetingsWithAttendance > 0
+        ? Math.round(totalAttendance / meetingsWithAttendance)
+        : 0
+
+    return {
+        totalMeetings,
+        avgAttendance,
+        totalGroups: groupIds.length
+    }
+}
+
+export async function getGroupAttendanceHistory(groupId?: string) {
+    const session = await auth()
+    if (!session?.user) throw new Error("Unauthorized")
+
+    let whereClause: any = {}
+
+    // If groupId is provided, check permission
+    if (groupId) {
+        if (session.user.role !== "ADMIN") {
+            const isLeader = await prisma.connectionGroupLeader.findUnique({
+                where: { groupId_userId: { groupId, userId: session.user.id! } }
+            })
+            if (!isLeader) throw new Error("Unauthorized")
+        }
+        whereClause.groupId = groupId
+    } else {
+        // If no groupId, and not admin, fetch for all leader groups
+        if (session.user.role !== "ADMIN") {
+            const leaderGroups = await prisma.connectionGroupLeader.findMany({
+                where: { userId: session.user.id! },
+                select: { groupId: true }
+            })
+            const groupIds = leaderGroups.map(lg => lg.groupId)
+            whereClause.groupId = { in: groupIds }
+        }
+        // If admin and no groupId, fetch all
+    }
+
+    const meetings = await prisma.meeting.findMany({
+        where: whereClause,
+        orderBy: { date: 'asc' },
+        include: {
+            attendance: true,
+            group: {
+                select: { name: true }
+            }
+        }
+    })
+
+    return meetings
+        .filter(m => m.attendance) // Only meetings with attendance
+        .map(m => ({
+            date: m.date,
+            dateStr: m.date.toISOString(),
+            name: m.group.name,
+            adults: m.attendance!.adultsCount,
+            kids: m.attendance!.kidsCount,
+            total: m.attendance!.adultsCount + m.attendance!.kidsCount
+        }))
+}
+
+
 export async function updateLeaderGroup(groupId: string, formData: FormData) {
     const session = await auth()
     if (!session?.user) throw new Error("Unauthorized")

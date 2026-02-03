@@ -119,6 +119,53 @@ export async function deleteUser(userId: string) {
 
 // Group Actions
 
+export async function getAdminStats() {
+    await checkAdmin()
+
+    const totalGroups = await prisma.connectionGroup.count()
+    const totalUsers = await prisma.user.count()
+
+    // Calculate total attendance across all meetings
+    const attendanceAgg = await prisma.meetingAttendance.aggregate({
+        _sum: {
+            adultsCount: true,
+            kidsCount: true
+        },
+        _count: {
+            _all: true
+        }
+    })
+
+    const totalAttendanceCount = (attendanceAgg._sum.adultsCount || 0) + (attendanceAgg._sum.kidsCount || 0)
+    const totalMeetings = attendanceAgg._count._all || 0
+
+    // Average attendance per meeting
+    const avgAttendance = totalMeetings > 0
+        ? Math.round(totalAttendanceCount / totalMeetings)
+        : 0
+
+    // Active groups (groups with at least one meeting in the last 30 days)
+    const thirtyDaysAgo = new Date()
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
+
+    const activeGroupsCount = await prisma.connectionGroup.count({
+        where: {
+            meetings: {
+                some: {
+                    date: { gte: thirtyDaysAgo }
+                }
+            }
+        }
+    })
+
+    return {
+        totalGroups,
+        totalUsers,
+        avgAttendance, // Changed from totalAttendance
+        activeGroupsCount
+    }
+}
+
 export async function getGroups() {
     await checkAdmin()
     try {
