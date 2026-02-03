@@ -25,7 +25,7 @@ export default function Home() {
                                 <Link href="/meetings">
                                     <Button size="lg" variant="secondary">Find a Meeting</Button>
                                 </Link>
-                                <Link href="/auth/signup">
+                                <Link href="/auth/signin">
                                     <Button variant="outline" size="lg">Lead a Group</Button>
                                 </Link>
                             </div>
