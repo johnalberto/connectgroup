@@ -2,6 +2,7 @@
 
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
+import { Weekday } from "@prisma/client"
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 import { z } from "zod"
@@ -217,4 +218,63 @@ export async function updateProfile(data: z.infer<typeof UpdateProfileSchema>) {
 
     revalidatePath("/dashboard")
     return { success: true }
+}
+
+const UpdateGroupSchemaStr = z.object({
+    name: z.string().min(2),
+    weekday: z.string(),
+    description: z.string().optional(),
+})
+
+export async function updateLeaderGroup(groupId: string, formData: FormData) {
+    const session = await auth()
+    if (!session?.user) throw new Error("Unauthorized")
+
+    // Check permission
+    if (session.user.role !== "ADMIN") {
+        const isLeader = await prisma.connectionGroupLeader.findUnique({
+            where: {
+                groupId_userId: {
+                    groupId: groupId,
+                    userId: session.user.id!,
+                },
+            },
+        })
+
+        if (!isLeader) {
+            return { success: false, error: "You do not have permission to edit this group." }
+        }
+    }
+
+    const rawData = {
+        name: formData.get("name"),
+        weekday: formData.get("weekday"),
+        description: formData.get("description"),
+    }
+
+    const validation = UpdateGroupSchemaStr.safeParse(rawData)
+
+    if (!validation.success) {
+        return { success: false, error: "Invalid data" }
+    }
+
+    const data = validation.data
+
+    try {
+        await prisma.connectionGroup.update({
+            where: { id: groupId },
+            data: {
+                name: data.name,
+                weekday: data.weekday as any, // Cast to enum
+                description: data.description,
+            }
+        })
+
+        revalidatePath(`/dashboard/my-groups`)
+        revalidatePath(`/dashboard/my-groups/${groupId}`)
+        return { success: true }
+    } catch (error) {
+        console.error("Update Group Error:", error)
+        return { success: false, error: "Failed to update group" }
+    }
 }

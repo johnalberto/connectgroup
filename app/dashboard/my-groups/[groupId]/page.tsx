@@ -1,6 +1,7 @@
 import { getGroupDetails } from "@/app/dashboard/actions"
 import { MeetingDialog } from "@/components/meetings/MeetingDialog"
 import { AttendanceDialog } from "@/components/groups/AttendanceDialog"
+import { LeaderEditGroupDialog } from "@/components/groups/LeaderEditGroupDialog"
 import {
     Card,
     CardContent,
@@ -36,7 +37,10 @@ export default async function GroupDetailsPage({
                     </p>
                 </div>
                 {/* Create Mode */}
-                <MeetingDialog groupId={group.id} />
+                <div className="flex gap-2">
+                    <LeaderEditGroupDialog group={group} />
+                    <MeetingDialog groupId={group.id} />
+                </div>
             </div>
 
             <div className="grid gap-4 md:grid-cols-3">
