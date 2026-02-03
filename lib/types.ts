@@ -9,6 +9,7 @@ export interface ConnectorGroup {
     createdAt: Date;
     updatedAt: Date;
     leaders?: {
+        isPrimary?: boolean;
         user: {
             name: string | null;
             image: string | null;

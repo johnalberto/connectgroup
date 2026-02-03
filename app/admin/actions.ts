@@ -128,7 +128,7 @@ export async function getGroups() {
                 leaders: {
                     include: {
                         user: {
-                            select: { name: true, email: true }
+                            select: { name: true, email: true, image: true }
                         }
                     }
                 },
@@ -142,6 +142,36 @@ export async function getGroups() {
         return { success: false, error: "Failed to fetch groups" }
     }
 }
+
+export async function setPrimaryLeader(groupId: string, userId: string) {
+    await checkAdmin()
+    try {
+        // Transaction to ensure only one primary leader per group
+        await prisma.$transaction([
+            // 1. Reset all leaders in this group to not primary
+            prisma.connectionGroupLeader.updateMany({
+                where: { groupId },
+                data: { isPrimary: false }
+            }),
+            // 2. Set the specific leader to primary
+            prisma.connectionGroupLeader.update({
+                where: {
+                    groupId_userId: {
+                        groupId,
+                        userId
+                    }
+                },
+                data: { isPrimary: true }
+            })
+        ])
+
+        revalidatePath("/admin/groups")
+        return { success: true }
+    } catch (error) {
+        return { success: false, error: "Failed to set primary leader" }
+    }
+}
+
 
 export async function createGroup(data: { name: string; weekday: string; description?: string }) {
     await checkAdmin()

@@ -12,8 +12,14 @@ interface GroupCardProps {
 export function GroupCard({ group }: GroupCardProps) {
     const nextMeeting = group.meetings?.[0]; // Assuming sorted
 
-    // Map leaders to the format expected by AvatarStack
-    const leaders = group.leaders?.map(l => ({
+    // Map leaders to the format expected by AvatarStack, sorted by primary first
+    const sortedLeaders = [...(group.leaders || [])].sort((a, b) => {
+        if (a.isPrimary) return -1;
+        if (b.isPrimary) return 1;
+        return 0;
+    });
+
+    const leaders = sortedLeaders.map(l => ({
         name: l.user.name,
         image: l.user.image
     })) || [];
@@ -41,9 +47,17 @@ export function GroupCard({ group }: GroupCardProps) {
                             <span className="text-xs font-medium text-muted-foreground">Leaders</span>
                             <AvatarStack users={leaders} size="sm" max={4} />
                         </div>
-                        <p className="text-sm font-medium text-foreground line-clamp-1">
-                            {leaders.map(l => l.name).join(", ")}
-                        </p>
+                        <div className="text-sm font-medium text-foreground line-clamp-1 flex flex-wrap gap-1">
+                            {sortedLeaders.map((l, index) => (
+                                <span key={l.user.name} className="flex items-center gap-1">
+                                    {l.user.name}
+                                    {l.isPrimary && (
+                                        <span title="Primary Leader" className="text-yellow-500">★</span>
+                                    )}
+                                    {index < sortedLeaders.length - 1 && ","}
+                                </span>
+                            ))}
+                        </div>
                     </div>
 
                     {nextMeeting && (

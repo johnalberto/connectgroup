@@ -57,8 +57,16 @@ export default async function GroupDetailsPage({
                         <CardTitle className="text-sm font-medium">Leaders</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-sm font-medium">
-                            {group.leaders.map(l => l.user.name || l.user.email).join(", ")}
+                        <div className="text-sm font-medium flex flex-wrap gap-1">
+                            {group.leaders.sort((a, b) => (a.isPrimary === b.isPrimary ? 0 : a.isPrimary ? -1 : 1)).map((l, i, arr) => (
+                                <span key={l.user.email} className="flex items-center gap-1">
+                                    {l.user.name || l.user.email}
+                                    {l.isPrimary && (
+                                        <span title="Primary Leader" className="text-yellow-500">★</span>
+                                    )}
+                                    {i < arr.length - 1 && ","}
+                                </span>
+                            ))}
                         </div>
                     </CardContent>
                 </Card>
