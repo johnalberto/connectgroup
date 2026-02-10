@@ -12,7 +12,7 @@ export async function GET() {
 
         const users = await prisma.user.findMany({
             where: {
-                id: { in: messages.map(m => m.userId).filter((id): id is string => id !== null) }
+                id: { in: messages.map((m: any) => m.userId).filter((id: any): id is string => id !== null) }
             },
             select: { id: true, name: true, phone: true }
         });
