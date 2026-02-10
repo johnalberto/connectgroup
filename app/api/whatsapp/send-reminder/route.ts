@@ -1,4 +1,8 @@
 
+// ==========================================
+// DEPLOYMENT INTEGRITY CHECK: V1
+// This comment shifts code down by 3 lines.
+// ==========================================
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { TwilioService } from "@/lib/twilio-service";
