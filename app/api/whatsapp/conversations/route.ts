@@ -20,7 +20,9 @@ export async function GET(req: NextRequest) {
 
         console.log(`Found ${usersWithMessages.length} users with messages:`, usersWithMessages.map(u => u.userId));
 
-        const userIds = usersWithMessages.map(u => u.userId);
+        const userIds = usersWithMessages
+            .map(u => u.userId)
+            .filter((id): id is string => id !== null);
 
         // Fetch user details and last message for each
         const conversations = await Promise.all(userIds.map(async (userId) => {
