@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
         const validation = sendSchema.safeParse(body);
 
         if (!validation.success) {
-            return NextResponse.json({ success: false, error: validation.error.errors }, { status: 400 });
+            return NextResponse.json({ success: false, error: validation.error.format() }, { status: 400 });
         }
 
         const { userId, phone, messageType, templateSid, templateVariables, body: textBody } = validation.data;
