@@ -5,9 +5,10 @@ import { format } from "date-fns";
 
 // FORCE UPDATE: Adding comment to trigger git change
 // Defines supported notification types
-type NotificationType = 'CREATED' | 'UPDATED' | 'REMINDER';
+// Defines supported notification types
+export type MeetingNotificationType = 'CREATED' | 'UPDATED' | 'REMINDER';
 
-export async function sendMeetingNotification(meetingId: string, type: NotificationType) {
+export async function sendMeetingNotification(meetingId: string, type: MeetingNotificationType) {
     try {
         // 1. Fetch meeting details with group and participants
         const meeting = await prisma.meeting.findUnique({
