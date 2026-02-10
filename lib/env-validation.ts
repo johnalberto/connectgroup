@@ -1,120 +1,94 @@
-// lib/env-validation.ts
 
 /**
- * Validación de variables de entorno
- * Se ejecuta al inicio de la aplicación
+ * Environment Validation System
+ * 
+ * Prevents accidental connection to Production DB from Non-Production environments.
+ * 
+ * VERCEL_ENV can be: 'production' | 'preview' | 'development'
+ * NODE_ENV can be: 'production' | 'development' | 'test'
  */
 
-type Environment = 'development' | 'production' | 'test';
-
-interface EnvConfig {
-    NODE_ENV: Environment;
-    DATABASE_URL: string;
-    TWILIO_ACCOUNT_SID: string;
-    TWILIO_AUTH_TOKEN: string;
-    TWILIO_WHATSAPP_SENDER: string;
-    TWILIO_USE_SANDBOX: boolean;
-    NEXT_PUBLIC_APP_URL: string;
-    WHATSAPP_BUSINESS_ACCOUNT_ID?: string;
-}
-
-class EnvValidationError extends Error {
-    constructor(message: string) {
-        super(message);
-        this.name = 'EnvValidationError';
-    }
-}
-
-export function validateEnv(): EnvConfig {
-    const requiredVars = [
-        'DATABASE_URL',
-        'TWILIO_ACCOUNT_SID',
-        'TWILIO_AUTH_TOKEN',
-        'TWILIO_WHATSAPP_SENDER',
-    ];
-
-    // Verificar variables requeridas
-    const missing = requiredVars.filter((key) => !process.env[key]);
-
-    if (missing.length > 0) {
-        throw new EnvValidationError(
-            `❌ Missing required environment variables:\n${missing.join('\n')}\n\nCheck your .env.local file`
-        );
-    }
-
-    const env = process.env.NODE_ENV || 'development';
-
-    // PROTECCIÓN CRÍTICA: Evitar usar BD de producción en desarrollo
-    if (env === 'production') {
-        // En producción, la BD NO debe contener 'dev', 'development', 'staging'
-        if (
-            process.env.DATABASE_URL?.includes('dev') ||
-            process.env.DATABASE_URL?.includes('development')
-        ) {
-            throw new EnvValidationError(
-                '🚨 CRITICAL: Production environment is using a DEVELOPMENT database!\n' +
-                'This is extremely dangerous. Check your Vercel environment variables.'
-            );
-        }
-
-        // En producción, NO usar sandbox
-        if (process.env.TWILIO_USE_SANDBOX === 'true') {
-            console.warn(
-                '⚠️  WARNING: Production is configured to use Twilio Sandbox.\n' +
-                'This should only be temporary for testing.'
-            );
-        }
-    }
-
-    // En desarrollo, advertir si se está usando BD de producción
-    if (env === 'development') {
-        if (
-            process.env.DATABASE_URL?.includes('prod') ||
-            process.env.DATABASE_URL?.includes('production') ||
-            process.env.DATABASE_URL?.includes('main')
-        ) {
-            throw new EnvValidationError(
-                '🚨 DANGER: Development environment is pointing to PRODUCTION database!\n' +
-                'This could cause data loss. Update your .env.local file.'
-            );
-        }
-    }
-
-    console.log(`✅ Environment validated: ${env}`);
-    console.log(`📊 Database: ${process.env.DATABASE_URL?.split('@')[1]?.split('/')[0]}`);
-    console.log(`📱 WhatsApp Mode: ${process.env.TWILIO_USE_SANDBOX === 'true' ? 'Sandbox' : 'Production'}`);
-
-    return {
-        NODE_ENV: env as Environment,
-        DATABASE_URL: process.env.DATABASE_URL!,
-        TWILIO_ACCOUNT_SID: process.env.TWILIO_ACCOUNT_SID!,
-        TWILIO_AUTH_TOKEN: process.env.TWILIO_AUTH_TOKEN!,
-        TWILIO_WHATSAPP_SENDER: process.env.TWILIO_WHATSAPP_SENDER!,
-        TWILIO_USE_SANDBOX: process.env.TWILIO_USE_SANDBOX === 'true',
-        NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
-        WHATSAPP_BUSINESS_ACCOUNT_ID: process.env.WHATSAPP_BUSINESS_ACCOUNT_ID, // Add this
-    };
-}
-
-// Singleton para acceder a env validado
-let envConfig: EnvConfig | null = null;
-
-export function getEnv(): EnvConfig {
-    if (!envConfig) {
-        envConfig = validateEnv();
-    }
-    return envConfig;
-}
-
-// Helper para saber en qué ambiente estamos
-export function isDevelopment(): boolean {
-    return getEnv().NODE_ENV === 'development';
-}
-
 export function isProduction(): boolean {
-    return getEnv().NODE_ENV === 'production';
+    return process.env.VERCEL_ENV === 'production' || process.env.NODE_ENV === 'production';
 }
 
-export function useSandbox(): boolean {
-    return getEnv().TWILIO_USE_SANDBOX;
+export function isPreview(): boolean {
+    return process.env.VERCEL_ENV === 'preview';
+}
+
+export function isDevelopment(): boolean {
+    return process.env.VERCEL_ENV === 'development' || (!process.env.VERCEL_ENV && process.env.NODE_ENV === 'development');
+}
+
+export function validateEnvironment() {
+    // Skip validation during build time to avoid breaking static generation if DB not present
+    if (process.env.CI || process.env.NEXT_PHASE === 'phase-production-build') {
+        return;
+    }
+
+    const dbUrl = process.env.DATABASE_URL;
+
+    if (!dbUrl) {
+        console.warn("⚠️  DATABASE_URL is missing. Skipping URL validation, but this might cause runtime errors.");
+        return;
+    }
+
+    const envState = {
+        nodeEnv: process.env.NODE_ENV,
+        vercelEnv: process.env.VERCEL_ENV || 'local',
+        isProd: isProduction(),
+        isPreview: isPreview(),
+        isDev: isDevelopment()
+    };
+
+    console.log("🛡️  Validating Environment Safety:", JSON.stringify(envState, null, 2));
+
+    // DANGER KEYWORDS
+    // Hostnames associated with Development/Preview/Test branches
+    const DEV_KEYWORDS = ['development', 'dev-branch', 'misty-tree'];
+
+    // Hostnames associated with Production branches
+    const PROD_KEYWORDS = ['plain-cherry', 'production', 'main-branch'];
+
+    // 1. Check if PREVIEW/DEV is trying to access PROD DB
+    if (envState.isPreview || envState.isDev) {
+        const hasProdKeyword = PROD_KEYWORDS.some(k => dbUrl.includes(k));
+        if (hasProdKeyword) {
+            const errorMsg = `
+            🚨 CRITICAL SECURITY ALERT 🚨
+            
+            You are in a NON-PRODUCTION environment (${envState.vercelEnv}) 
+            but DATABASE_URL seems to point to a PRODUCTION database.
+            
+            Detected Keyword in URL: ${PROD_KEYWORDS.find(k => dbUrl.includes(k))}
+            
+            Action Blocked to prevent data loss.
+            Please check your .env or Vercel Environment Variables.
+            `;
+            console.error(errorMsg);
+            throw new Error(errorMsg);
+        }
+    }
+
+    // 2. Check if PRODUCTION is trying to access DEV DB
+    // (Less critical for data loss, but bad for reliability)
+    if (envState.isProd && !envState.isPreview) { // Vercel 'production' env
+        const hasDevKeyword = DEV_KEYWORDS.some(k => dbUrl.includes(k));
+        if (hasDevKeyword) {
+            const errorMsg = `
+            🚨 CONFIGURATION ALERT 🚨
+            
+            You are in PRODUCTION environment
+            but DATABASE_URL seems to point to a DEVELOPMENT database.
+            
+            Detected Keyword in URL: ${DEV_KEYWORDS.find(k => dbUrl.includes(k))}
+            
+            Action Blocked to prevent reliability issues.
+            `;
+            console.error(errorMsg);
+            throw new Error(errorMsg);
+        }
+    }
+
+    console.log("✅ Environment Database Safety Check Passed.");
 }
