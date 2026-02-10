@@ -34,7 +34,7 @@ export default async function UsersPage() {
                 </CardHeader>
                 <CardContent>
                     <div className="space-y-4">
-                        {users.map((user) => (
+                        {users.map((user: any) => (
                             <div key={user.id} className="flex items-center justify-between border-b pb-4 last:border-0 last:pb-0">
                                 <div className="flex items-center gap-3">
                                     <Avatar className="h-9 w-9">
