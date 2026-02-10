@@ -63,6 +63,10 @@ export default async function UsersPage() {
                                         currentRole={user.role}
                                         userName={user.name || ""}
                                         userEmail={user.email}
+                                        // @ts-ignore
+                                        userPhone={user.phone}
+                                        // @ts-ignore
+                                        whatsappNotifications={user.whatsappNotifications}
                                     />
                                 </div>
                             </div>

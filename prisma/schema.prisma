@@ -23,12 +23,21 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   
+  // New WhatsApp fields
+  phone                 String?   @db.VarChar(20) // E.164 format
+  whatsappNotifications Boolean   @default(true)
+  whatsappSandboxJoined Boolean   @default(false)
+  
   // Relaciones
   accounts      Account[]
   sessions      Session[]
   leaderGroups  ConnectionGroupLeader[] // Grupos donde es leader
+  whatsappMessages WhatsAppMessage[]
+  createdTemplates MessageTemplate[]
+
   
   @@index([email])
+  @@index([phone])
   @@map("users")
 }
 
@@ -120,12 +129,11 @@ enum Weekday {
   SUNDAY
 }
 
-// Tabla intermedia para Leaders (many-to-many)
 model ConnectionGroupLeader {
   id              String   @id @default(cuid())
   groupId         String
   userId          String
-  isPrimary       Boolean  @default(false) // Leader principal
+  isPrimary       Boolean  @default(false)
   assignedAt      DateTime @default(now())
   
   // Relaciones
@@ -193,4 +201,96 @@ model MeetingPhoto {
   
   @@index([meetingId])
   @@map("meeting_photos")
+}
+
+// ============================================
+// WHATSAPP INTEGRATION
+// ============================================
+
+model WhatsAppMessage {
+  id               String   @id @default(cuid())
+  userId           String?
+  twilioMessageSid String?  @unique
+  direction        MessageDirection
+  senderType       SenderType
+  messageBody      String   @db.Text
+  status           MessageStatus @default(queued)
+  templateUsed     String?  @db.VarChar(100)
+  templateVariables Json?
+  errorCode        String?  @db.VarChar(10)
+  errorMessage     String?  @db.Text
+  mediaUrl         String?  @db.Text
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  
+  // Relaciones
+  user             User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+  @@index([twilioMessageSid])
+  @@index([status])
+  @@map("whatsapp_messages")
+}
+
+model MessageTemplate {
+  id               String   @id @default(cuid())
+  name             String   @unique @db.VarChar(100)
+  twilioContentSid String?  @db.VarChar(34)
+  category         TemplateCategory
+  language         String   @default("es") @db.VarChar(5)
+  templateBody     String   @db.Text
+  variables        Json?    // Array of variables: [{name: 'userName', description: '...'}]
+  isActive         Boolean  @default(true)
+  approvalStatus   ApprovalStatus @default(pending)
+  createdBy        String
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  
+  // Relaciones
+  creator          User     @relation(fields: [createdBy], references: [id])
+  
+  @@map("message_templates")
+}
+
+enum MessageDirection {
+  outbound
+  inbound
+}
+
+enum SenderType {
+  admin
+  user
+  system
+}
+
+enum MessageStatus {
+  queued
+  sent
+  delivered
+  read
+  failed
+  undelivered
+  received // Added for inbound messages
+}
+
+enum TemplateCategory {
+  notification
+  invitation
+  reminder
+  general
+}
+
+enum ApprovalStatus {
+  pending
+  approved
+  rejected
+}
+
+model SystemSettings {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String   @db.Text
+  updatedAt DateTime @updatedAt
+  
+  @@map("system_settings")
 }

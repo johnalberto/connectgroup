@@ -6,6 +6,7 @@ import { Weekday } from "@prisma/client"
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 import { z } from "zod"
+import { sendMeetingNotification } from "@/lib/notifications"
 
 export async function getLeaderGroups() {
     const session = await auth()
@@ -102,7 +103,7 @@ export async function createMeeting(data: z.infer<typeof MeetingSchema>) {
         }
     }
 
-    await prisma.meeting.create({
+    const meeting = await prisma.meeting.create({
         data: {
             groupId: data.groupId,
             date: new Date(data.date),
@@ -110,6 +111,9 @@ export async function createMeeting(data: z.infer<typeof MeetingSchema>) {
             description: data.description,
         },
     })
+
+    // Send Notifications (Async - don't block response)
+    sendMeetingNotification(meeting.id, 'CREATED').catch(err => console.error(err))
 
     revalidatePath(`/dashboard/my-groups/${data.groupId}`)
     revalidatePath(`/dashboard/my-groups`)
@@ -154,6 +158,9 @@ export async function updateMeeting(data: z.infer<typeof UpdateMeetingSchema>) {
             description: data.description,
         },
     })
+
+    // Send Notifications
+    sendMeetingNotification(data.meetingId, 'UPDATED').catch(err => console.error(err))
 
     revalidatePath(`/dashboard/my-groups/${data.groupId}`)
     return { success: true }

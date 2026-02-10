@@ -20,19 +20,24 @@ import { UserRole } from "@prisma/client"
 import { useState } from "react"
 import { EditUserDialog } from "@/components/admin/EditUserDialog"
 import { Loader2 } from "lucide-react"
+import { ChatModal } from "@/components/whatsapp/ChatModal"
 
 interface UserActionsProps {
     userId: string
     currentRole: UserRole
     userName: string
     userEmail: string
+    userPhone?: string | null
+    whatsappNotifications?: boolean
 }
 
-export function UserActions({ userId, currentRole, userName, userEmail }: UserActionsProps) {
+export function UserActions({ userId, currentRole, userName, userEmail, userPhone, whatsappNotifications }: UserActionsProps) {
     const [loading, setLoading] = useState(false)
     const [editOpen, setEditOpen] = useState(false)
+    const [chatOpen, setChatOpen] = useState(false)
 
     const handleRoleChange = async (newRole: UserRole) => {
+        // ... (unchanged)
         if (newRole === currentRole) return;
         setLoading(true)
         try {
@@ -50,6 +55,7 @@ export function UserActions({ userId, currentRole, userName, userEmail }: UserAc
     }
 
     const handleDelete = async () => {
+        // ... (unchanged)
         if (!confirm("Are you sure you want to delete this user?")) return;
 
         setLoading(true)
@@ -68,6 +74,7 @@ export function UserActions({ userId, currentRole, userName, userEmail }: UserAc
     }
 
     const handleResendInvite = async () => {
+        // ... (unchanged)
         setLoading(true)
         try {
             const result = await resendUserInvite(userId)
@@ -94,6 +101,9 @@ export function UserActions({ userId, currentRole, userName, userEmail }: UserAc
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                    <DropdownMenuItem onClick={() => setChatOpen(true)}>
+                        Send WhatsApp Message
+                    </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => setEditOpen(true)}>
                         Edit user
                     </DropdownMenuItem>
@@ -120,7 +130,21 @@ export function UserActions({ userId, currentRole, userName, userEmail }: UserAc
             <EditUserDialog
                 open={editOpen}
                 onOpenChange={setEditOpen}
-                user={{ id: userId, name: userName, email: userEmail }}
+                user={{
+                    id: userId,
+                    name: userName,
+                    email: userEmail,
+                    phone: userPhone || undefined,
+                    whatsappNotifications: whatsappNotifications
+                }}
+            />
+
+            <ChatModal
+                isOpen={chatOpen}
+                onClose={() => setChatOpen(false)}
+                userId={userId}
+                userName={userName}
+                userPhone={userPhone}
             />
         </>
     )

@@ -11,6 +11,7 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
+import { PhoneInput } from "@/components/whatsapp/PhoneInput"
 import { Label } from "@/components/ui/label"
 import { useState } from "react"
 import { createUser } from "@/app/admin/actions"
@@ -23,6 +24,7 @@ export function UserDialog() {
     // Form State
     const [name, setName] = useState("")
     const [email, setEmail] = useState("")
+    const [phone, setPhone] = useState("")
     // Password is optional. If empty -> Invite flow.
     // const [password, setPassword] = useState("") 
 
@@ -31,7 +33,7 @@ export function UserDialog() {
         setLoading(true)
 
         try {
-            const result = await createUser({ name, email })
+            const result = await createUser({ name, email, phone })
             if (result.success) {
                 setOpen(false)
                 setName("")
@@ -84,6 +86,14 @@ export function UserDialog() {
                                 onChange={(e) => setEmail(e.target.value)}
                                 placeholder="jane@example.com"
                                 required
+                            />
+                        </div>
+                        <div className="grid gap-2">
+                            <Label htmlFor="phone">Phone (International)</Label>
+                            <PhoneInput
+                                value={phone}
+                                onChange={setPhone}
+                                placeholder="+61412345678"
                             />
                         </div>
                     </div>

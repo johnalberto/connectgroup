@@ -18,19 +18,19 @@ function getGraphClient() {
         }
 
         const credential = new ClientSecretCredential(tenantId, clientId, clientSecret);
-        
+
         // Add an incremental retry mechanism or custom auth provider if needed
         // For simple backend usage, AuthProvider with ClientSecretCredential works best via TokenCredentialAuthenticationProvider
         // However, the graph-client supports simple custom auth provider too.
         // Easiest is using @microsoft/microsoft-graph-client/authProviders/azureTokenCredentials which we might not have installed explicitly?
         // Actually, @azure/identity works with Client.initWithMiddleware if we use TokenCredentialAuthenticationProvider.
         // Let's implement a simple auth provider that calls getToken on the credential.
-        
+
         graphClient = Client.initWithMiddleware({
             authProvider: {
                 getAccessToken: async () => {
-                   const token = await credential.getToken("https://graph.microsoft.com/.default");
-                   return token.token;
+                    const token = await credential.getToken("https://graph.microsoft.com/.default");
+                    return token.token;
                 }
             },
         });
@@ -39,10 +39,15 @@ function getGraphClient() {
 }
 
 
+// Exported generic function
+export async function sendEmail(subject: string, to: string, htmlContent: string) {
+    await checkAndSendEmail(subject, to, htmlContent);
+}
+
 async function checkAndSendEmail(subject: string, to: string, htmlContent: string) {
     try {
         const client = getGraphClient();
-        
+
         const mail = {
             subject: subject,
             toRecipients: [
@@ -64,8 +69,8 @@ async function checkAndSendEmail(subject: string, to: string, htmlContent: strin
         };
 
         await client.api(`/users/${senderEmail}/sendMail`)
-            .post({ message: mail, saveToSentItems: "false" }); // saveToSentItems is string "true" or "false" in older vers, boolean in newer. post accepts object.
-            
+            .post({ message: mail, saveToSentItems: "false" });
+
     } catch (error) {
         console.error("Error sending email via Graph API:", error);
         throw new Error("Failed to send email");

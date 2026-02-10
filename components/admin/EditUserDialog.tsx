@@ -11,6 +11,8 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { PhoneInput } from "@/components/whatsapp/PhoneInput"
+import { Switch } from "@/components/ui/switch"
 import { useState, useEffect } from "react"
 import { updateUser } from "@/app/admin/actions"
 import { Loader2 } from "lucide-react"
@@ -22,6 +24,8 @@ interface EditUserDialogProps {
         id: string
         name: string
         email: string
+        phone?: string
+        whatsappNotifications?: boolean
     } | null
 }
 
@@ -29,11 +33,17 @@ export function EditUserDialog({ open, onOpenChange, user }: EditUserDialogProps
     const [loading, setLoading] = useState(false)
     const [name, setName] = useState("")
     const [email, setEmail] = useState("")
+    const [phone, setPhone] = useState("")
+    const [whatsappNotifications, setWhatsappNotifications] = useState(true)
 
     useEffect(() => {
         if (user) {
             setName(user.name || "")
             setEmail(user.email || "")
+            // @ts-ignore
+            setPhone(user.phone || "") // Helper: ignore until migration makes type available
+            // @ts-ignore
+            setWhatsappNotifications(user.whatsappNotifications ?? true)
         }
     }, [user])
 
@@ -43,7 +53,7 @@ export function EditUserDialog({ open, onOpenChange, user }: EditUserDialogProps
 
         setLoading(true)
         try {
-            const result = await updateUser(user.id, { name, email })
+            const result = await updateUser(user.id, { name, email, phone, whatsappNotifications })
             if (result.success) {
                 onOpenChange(false)
                 alert("User updated successfully")
@@ -86,6 +96,22 @@ export function EditUserDialog({ open, onOpenChange, user }: EditUserDialogProps
                                 onChange={(e) => setEmail(e.target.value)}
                                 required
                             />
+                        </div>
+                        <div className="grid gap-2">
+                            <Label htmlFor="edit-phone">Phone</Label>
+                            <PhoneInput
+                                value={phone}
+                                onChange={setPhone}
+                                placeholder="+61..."
+                            />
+                        </div>
+                        <div className="flex items-center space-x-2">
+                            <Switch
+                                id="whatsapp-notifications"
+                                checked={whatsappNotifications}
+                                onCheckedChange={setWhatsappNotifications}
+                            />
+                            <Label htmlFor="whatsapp-notifications">Enable WhatsApp Notifications</Label>
                         </div>
                     </div>
                     <DialogFooter>

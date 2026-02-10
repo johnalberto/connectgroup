@@ -1,7 +1,9 @@
+
 import { getGroupDetails } from "@/app/dashboard/actions"
 import { MeetingDialog } from "@/components/meetings/MeetingDialog"
 import { AttendanceDialog } from "@/components/groups/AttendanceDialog"
 import { LeaderEditGroupDialog } from "@/components/groups/LeaderEditGroupDialog"
+import { SendReminderButton } from "@/components/meetings/SendReminderButton"
 import {
     Card,
     CardContent,
@@ -101,6 +103,12 @@ export default async function GroupDetailsPage({
                                         </CardTitle>
                                     </div>
                                     <div className="flex items-center gap-2">
+                                        {/* Send Reminder */}
+                                        <SendReminderButton
+                                            meetingId={meeting.id}
+                                            groupId={group.id}
+                                            meetingDate={format(new Date(meeting.date), "PPP p")}
+                                        />
                                         {/* Attendance */}
                                         <AttendanceDialog meetingId={meeting.id} initialData={meeting.attendance} />
                                         {/* Edit Mode */}

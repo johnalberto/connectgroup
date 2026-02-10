@@ -17,7 +17,7 @@ export default async function DashboardPage() {
             getAdminStats(),
             import("@/app/admin/actions").then(mod => mod.getGroups())
         ])
-        const groups = groupsResult.success ? groupsResult.data : []
+        const groups = (groupsResult.success && groupsResult.data) ? groupsResult.data : []
         return <AdminDashboard stats={stats} groups={groups} />
     } else {
         // Leader View

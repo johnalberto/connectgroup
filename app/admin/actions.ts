@@ -25,6 +25,8 @@ export async function getUsers() {
                 id: true,
                 name: true,
                 email: true,
+                phone: true,
+                whatsappNotifications: true,
                 role: true,
                 createdAt: true,
                 enabled: true,
@@ -42,7 +44,7 @@ export async function getUsers() {
     }
 }
 
-export async function createUser(data: { name: string; email: string }) {
+export async function createUser(data: { name: string; email: string; phone?: string }) {
     try {
         await checkAdmin()
 
@@ -56,6 +58,7 @@ export async function createUser(data: { name: string; email: string }) {
             data: {
                 name: data.name,
                 email: data.email,
+                phone: data.phone,
                 role: "USER",
                 enabled: true,
             }
@@ -365,19 +368,120 @@ export async function resendUserInvite(userId: string) {
     }
 }
 
-export async function updateUser(userId: string, data: { name: string; email: string }) {
+export async function updateUser(userId: string, data: { name: string; email: string; phone?: string; whatsappNotifications?: boolean }) {
     await checkAdmin()
     try {
         await prisma.user.update({
             where: { id: userId },
             data: {
                 name: data.name,
-                email: data.email
+                email: data.email,
+                phone: data.phone,
+                whatsappNotifications: data.whatsappNotifications
             }
         })
         revalidatePath("/admin/users")
         return { success: true }
     } catch (error) {
         return { success: false, error: "Failed to update user" }
+    }
+}
+
+// Message Template Actions
+
+export async function getTemplates() {
+    await checkAdmin()
+    try {
+        const templates = await prisma.messageTemplate.findMany({
+            orderBy: { createdAt: 'desc' }
+        })
+        return { success: true, data: templates }
+    } catch (error) {
+        return { success: false, error: "Failed to fetch templates" }
+    }
+}
+
+export async function createTemplate(data: { name: string; body: string }) {
+    const session = await checkAdmin()
+    try {
+        await prisma.messageTemplate.create({
+            data: {
+                name: data.name,
+                templateBody: data.body,
+                createdBy: session?.user?.id
+            }
+        })
+        revalidatePath("/admin/settings")
+        return { success: true }
+    } catch (error) {
+        return { success: false, error: "Failed to create template" }
+    }
+}
+
+export async function updateTemplate(id: string, data: { name: string; body: string }) {
+    await checkAdmin()
+    try {
+        await prisma.messageTemplate.update({
+            where: { id },
+            data: {
+                name: data.name,
+                templateBody: data.body
+            }
+        })
+        revalidatePath("/admin/settings")
+        return { success: true }
+    } catch (error) {
+        return { success: false, error: "Failed to update template" }
+    }
+}
+
+export async function deleteTemplate(id: string) {
+    await checkAdmin()
+    try {
+        await prisma.messageTemplate.delete({
+            where: { id }
+        })
+        revalidatePath("/admin/settings")
+        return { success: true }
+    } catch (error) {
+        return { success: false, error: "Failed to delete template" }
+    }
+}
+
+export async function getConversations() {
+    await checkAdmin()
+    try {
+        const users = await prisma.user.findMany({
+            where: {
+                whatsappMessages: {
+                    some: {}
+                }
+            },
+            include: {
+                whatsappMessages: {
+                    orderBy: {
+                        createdAt: 'desc'
+                    },
+                    take: 1
+                }
+            }
+        })
+
+        // Transform to a friendlier format if needed
+        // Transform to match ConversationList interface
+        const conversations = users.map(user => ({
+            user: {
+                id: user.id,
+                name: user.name,
+                image: user.image,
+                phone: user.phone
+            },
+            lastMessage: user.whatsappMessages[0] || null,
+            unreadCount: 0 // TODO: Implement unread count logic
+        }))
+
+        return { success: true, data: conversations }
+    } catch (error) {
+        return { success: false, error: "Failed to fetch conversations" }
     }
 }
