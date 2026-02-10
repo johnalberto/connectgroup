@@ -37,7 +37,7 @@ export default async function GroupsPage() {
                                 No groups found. Create one to get started.
                             </div>
                         ) : (
-                            groups.map((group) => (
+                            groups.map((group: any) => (
                                 <div key={group.id} className="flex items-center justify-between border-b pb-4 last:border-0 last:pb-0">
                                     <div className="space-y-1">
                                         <div className="flex items-center gap-2">
@@ -54,7 +54,7 @@ export default async function GroupsPage() {
                                             <Users className="h-3 w-3 text-muted-foreground" />
                                             {group.leaders.length > 0 ? (
                                                 <span className="text-xs text-muted-foreground">
-                                                    {group.leaders.map(l => l.user.name).join(", ")}
+                                                    {group.leaders.map((l: any) => l.user.name).join(", ")}
                                                 </span>
                                             ) : (
                                                 <span className="text-xs text-red-400 italic">No leaders assigned</span>
