@@ -1,4 +1,6 @@
+import { getTemplates } from "@/app/admin/actions"
 import { TemplateManager } from "@/components/whatsapp/TemplateManager"
+
 import { DatabaseConnectionDebug } from "@/components/admin/DatabaseConnectionDebug"
 
 export default async function SettingsPage() {
