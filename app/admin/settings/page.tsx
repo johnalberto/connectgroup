@@ -1,5 +1,5 @@
-import { getTemplates } from "@/app/admin/actions"
 import { TemplateManager } from "@/components/whatsapp/TemplateManager"
+import { DatabaseConnectionDebug } from "@/components/admin/DatabaseConnectionDebug"
 
 export default async function SettingsPage() {
     const { success, data: templates } = await getTemplates()
@@ -15,7 +15,13 @@ export default async function SettingsPage() {
                 <p className="text-muted-foreground">Manage application configuration and templates.</p>
             </div>
 
+
             <TemplateManager templates={templates} />
+
+            <div className="pt-6 border-t">
+                <h3 className="text-lg font-medium mb-4">System configuration</h3>
+                <DatabaseConnectionDebug />
+            </div>
         </div>
     )
 }

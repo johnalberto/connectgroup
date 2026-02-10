@@ -490,3 +490,21 @@ export async function getConversations() {
         return { success: false, error: "Failed to fetch conversations" }
     }
 }
+// Debug Actions
+export async function getDatabaseConnectionInfo() {
+    await checkAdmin()
+    try {
+        const url = process.env.DATABASE_URL
+        if (!url) {
+            return { success: false, error: "DATABASE_URL not set" }
+        }
+
+        // Mask the password in the connection string
+        // Format: postgresql://user:password@host:port/db?sslmode=...
+        const maskedUrl = url.replace(/:([^:@]+)@/, ":******@")
+        
+        return { success: true, data: maskedUrl }
+    } catch (error) {
+        return { success: false, error: "Failed to fetch database info" }
+    }
+}
