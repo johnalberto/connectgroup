@@ -12,7 +12,7 @@ const sendSchema = z.object({
     phone: z.string().optional(),
     messageType: z.enum(['template', 'text']),
     templateSid: z.string().optional(),
-    templateVariables: z.record(z.string()).optional(),
+    templateVariables: z.record(z.string(), z.string()).optional(),
     body: z.string().optional(),
 });
 
