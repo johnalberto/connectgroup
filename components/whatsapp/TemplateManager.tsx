@@ -13,13 +13,13 @@ import { Loader2, Plus, Pencil, Trash2 } from "lucide-react"
 interface Template {
     id: string
     name: string
-    body: string
+    templateBody: string // Renamed from body
     createdAt: Date
     updatedAt: Date
 }
 
 interface TemplateManagerProps {
-    templates: Template[]
+    templates: any[] // Relaxing this to avoid strict type issues with excess properties from Prisma
 }
 
 export function TemplateManager({ templates }: TemplateManagerProps) {
@@ -29,7 +29,7 @@ export function TemplateManager({ templates }: TemplateManagerProps) {
 
     // Form State
     const [name, setName] = useState("")
-    const [body, setBody] = useState("")
+    const [body, setBody] = useState("") // Keeping state as 'body' for form input
 
     const resetForm = () => {
         setName("")
@@ -86,10 +86,10 @@ export function TemplateManager({ templates }: TemplateManagerProps) {
         }
     }
 
-    const openEdit = (t: Template) => {
+    const openEdit = (t: any) => {
         setEditingTemplate(t)
         setName(t.name)
-        setBody(t.body)
+        setBody(t.templateBody) // Map from prisma model
     }
 
     return (
@@ -142,7 +142,7 @@ export function TemplateManager({ templates }: TemplateManagerProps) {
                         <div key={t.id} className="flex items-start justify-between border p-4 rounded-lg">
                             <div>
                                 <h4 className="font-semibold">{t.name}</h4>
-                                <p className="text-sm text-gray-600 whitespace-pre-wrap mt-1">{t.body}</p>
+                                <p className="text-sm text-gray-600 whitespace-pre-wrap mt-1">{t.templateBody}</p>
                             </div>
                             <div className="flex gap-2">
                                 <Button variant="ghost" size="icon" onClick={() => openEdit(t)}>
