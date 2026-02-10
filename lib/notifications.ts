@@ -42,7 +42,7 @@ export async function sendMeetingNotification(meetingId: string, type: MeetingNo
 
         // DISABLE AUTOMATIC WHATSAPP ON CREATION (Manual only per requirements)
         // if (type === 'CREATED' && config.meetingNotifications === 'false') return;
-        if (type === 'CREATED') {
+        if ((type as string) === 'CREATED') {
             console.log("Automatic WhatsApp notification for CREATED meeting is disabled.");
             return;
         }
@@ -77,7 +77,7 @@ export async function sendMeetingNotification(meetingId: string, type: MeetingNo
 
         let messageBody = "";
 
-        if (type === 'CREATED') {
+        if ((type as string) === 'CREATED') {
             messageBody = `📅 *New Meeting Created*\n\nGroup: ${meeting.group.name}\nDate: ${dateStr}\nTime: ${timeStr}\nAddress: ${meeting.address}\n\n${meeting.description || ""}`;
         } else if (type === 'UPDATED') {
             messageBody = `📝 *Meeting Updated*\n\nGroup: ${meeting.group.name}\nNew Date: ${dateStr}\nNew Time: ${timeStr}\nAddress: ${meeting.address}`;
