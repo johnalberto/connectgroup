@@ -22,7 +22,7 @@ async function main() {
         });
 
         console.log(`Found ${users.length} users.`);
-        users.forEach(u => {
+        users.forEach((u: any) => {
             console.log(`User: ${u.name} (${u.email}) - Messages: ${u.whatsappMessages.length}`);
             if (u.whatsappMessages.length > 0) {
                 console.log(`  Last msg: ${u.whatsappMessages[0].messageBody} [${u.whatsappMessages[0].status}]`);
