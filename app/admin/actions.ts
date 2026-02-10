@@ -2,7 +2,7 @@
 
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
-import { UserRole } from "@prisma/client"
+import { UserRole, TemplateCategory } from "@prisma/client"
 import { revalidatePath } from "next/cache"
 import { v4 as uuidv4 } from "uuid"
 import { sendInviteEmail } from "@/lib/mail"
@@ -412,7 +412,8 @@ export async function createTemplate(data: { name: string; body: string }) {
             data: {
                 name: data.name,
                 templateBody: data.body,
-                createdBy: session.user.id
+                createdBy: session.user.id,
+                category: TemplateCategory.general
             }
         })
         revalidatePath("/admin/settings")
