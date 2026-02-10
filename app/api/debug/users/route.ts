@@ -32,7 +32,7 @@ export async function GET() {
             }
         });
 
-        const mappedConversations = potentialConversations.map(u => ({
+        const mappedConversations = potentialConversations.map((u: any) => ({
             user: u.name,
             msgCount: u.whatsappMessages.length,
             lastMsg: u.whatsappMessages[0]?.messageBody
