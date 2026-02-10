@@ -5,7 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Database, Eye, EyeOff, CheckCircle2, AlertCircle } from 'lucide-react'
 import { getDatabaseConnectionInfo } from '@/app/admin/actions'
-import { useToast } from '@/components/ui/use-toast'
+import { useToast } from '@/hooks/use-toast'
+
 
 export function DatabaseConnectionDebug() {
     const [connectionString, setConnectionString] = useState<string | null>(null)
