@@ -81,8 +81,8 @@ export async function POST(req: Request) {
         });
 
         const validRecipients = recipients
-            .map(r => r.user)
-            .filter(u => u.phone && u.whatsappNotifications);
+            .map((r: any) => r.user)
+            .filter((u: any) => u.phone && u.whatsappNotifications);
 
         if (validRecipients.length === 0) {
             return NextResponse.json({
@@ -95,7 +95,8 @@ export async function POST(req: Request) {
         const dateStr = format(new Date(meeting.date), "PPP", { locale: es });
         const timeStr = format(new Date(meeting.date), "p", { locale: es });
 
-        const results = await Promise.all(validRecipients.map(async (user) => {
+        const sortedValidRecipients = validRecipients.sort((a: any, b: any) => (a.name || "").localeCompare(b.name || ""));
+        const results = await Promise.all(sortedValidRecipients.map(async (user: any) => {
             try {
                 const res = await TwilioService.sendReminderTemplate({
                     to: user.phone!,
