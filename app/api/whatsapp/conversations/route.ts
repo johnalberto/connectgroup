@@ -18,14 +18,14 @@ export async function GET(req: NextRequest) {
             }
         });
 
-        console.log(`Found ${usersWithMessages.length} users with messages:`, usersWithMessages.map(u => u.userId));
+        console.log(`Found ${usersWithMessages.length} users with messages:`, usersWithMessages.map((u: any) => u.userId));
 
         const userIds = usersWithMessages
-            .map(u => u.userId)
-            .filter((id): id is string => id !== null);
+            .map((u: any) => u.userId)
+            .filter((id: any): id is string => id !== null);
 
         // Fetch user details and last message for each
-        const conversations = await Promise.all(userIds.map(async (userId) => {
+        const conversations = await Promise.all(userIds.map(async (userId: any) => {
             const user = await prisma.user.findUnique({
                 where: { id: userId },
                 select: { id: true, name: true, image: true, phone: true }
