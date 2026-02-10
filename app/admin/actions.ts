@@ -403,12 +403,16 @@ export async function getTemplates() {
 
 export async function createTemplate(data: { name: string; body: string }) {
     const session = await checkAdmin()
+    if (!session?.user?.id) {
+        return { success: false, error: "Unauthorized: User ID missing" }
+    }
+
     try {
         await prisma.messageTemplate.create({
             data: {
                 name: data.name,
                 templateBody: data.body,
-                createdBy: session?.user?.id
+                createdBy: session.user.id
             }
         })
         revalidatePath("/admin/settings")
