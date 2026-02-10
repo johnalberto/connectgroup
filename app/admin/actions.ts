@@ -474,7 +474,7 @@ export async function getConversations() {
 
         // Transform to a friendlier format if needed
         // Transform to match ConversationList interface
-        const conversations = users.map(user => ({
+        const conversations = users.map((user: any) => ({
             user: {
                 id: user.id,
                 name: user.name,
@@ -494,7 +494,14 @@ export async function getConversations() {
 export async function getDatabaseConnectionInfo() {
     await checkAdmin()
     try {
-        const url = process.env.DATABASE_URL
+        let url = process.env.DATABASE_URL_DEV
+        let source = "DATABASE_URL_DEV"
+
+        if (!url) {
+            url = process.env.DATABASE_URL
+            source = "DATABASE_URL"
+        }
+
         if (!url) {
             return { success: false, error: "DATABASE_URL not set" }
         }
@@ -502,8 +509,8 @@ export async function getDatabaseConnectionInfo() {
         // Mask the password in the connection string
         // Format: postgresql://user:password@host:port/db?sslmode=...
         const maskedUrl = url.replace(/:([^:@]+)@/, ":******@")
-        
-        return { success: true, data: maskedUrl }
+
+        return { success: true, data: { url: maskedUrl, source } }
     } catch (error) {
         return { success: false, error: "Failed to fetch database info" }
     }

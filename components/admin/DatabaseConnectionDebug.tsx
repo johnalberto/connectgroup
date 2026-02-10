@@ -9,7 +9,7 @@ import { useToast } from '@/hooks/use-toast'
 
 
 export function DatabaseConnectionDebug() {
-    const [connectionString, setConnectionString] = useState<string | null>(null)
+    const [connectionInfo, setConnectionInfo] = useState<{ url: string, source: string } | null>(null)
     const [loading, setLoading] = useState(false)
     const [visible, setVisible] = useState(false)
     const { toast } = useToast()
@@ -19,7 +19,13 @@ export function DatabaseConnectionDebug() {
         try {
             const result = await getDatabaseConnectionInfo()
             if (result.success && result.data) {
-                setConnectionString(result.data)
+                // Handle potential legacy string response (though we just changed it)
+                if (typeof result.data === 'string') {
+                    setConnectionInfo({ url: result.data, source: 'Unknown' })
+                } else {
+                    setConnectionInfo(result.data)
+                }
+
                 toast({
                     title: "Connection Checked",
                     description: "Database URL retrieved successfully.",
@@ -65,19 +71,27 @@ export function DatabaseConnectionDebug() {
                         <p>The password is masked for security.</p>
                     </div>
 
-                    {connectionString ? (
-                        <div className="rounded-md bg-muted p-3 font-mono text-xs flex items-center justify-between overflow-hidden">
-                            <span className="truncate mr-2">
-                                {visible ? connectionString : connectionString.replace(/:([^:@]+)@/, ":******@")}
-                            </span>
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-6 w-6 p-0 shrink-0"
-                                onClick={() => setVisible(!visible)}
-                            >
-                                {visible ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
-                            </Button>
+
+                    {connectionInfo ? (
+                        <div className="space-y-2">
+                            <div className="flex items-center gap-2 text-xs font-semibold">
+                                <span className="bg-primary/10 text-primary px-2 py-1 rounded">
+                                    Source: {connectionInfo.source}
+                                </span>
+                            </div>
+                            <div className="rounded-md bg-muted p-3 font-mono text-xs flex items-center justify-between overflow-hidden">
+                                <span className="truncate mr-2">
+                                    {visible ? connectionInfo.url : connectionInfo.url.replace(/:([^:@]+)@/, ":******@")}
+                                </span>
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="h-6 w-6 p-0 shrink-0"
+                                    onClick={() => setVisible(!visible)}
+                                >
+                                    {visible ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
+                                </Button>
+                            </div>
                         </div>
                     ) : (
                         <div className="rounded-md bg-muted/50 p-3 text-xs text-muted-foreground text-center">
@@ -85,7 +99,7 @@ export function DatabaseConnectionDebug() {
                         </div>
                     )}
 
-                    {connectionString && (
+                    {connectionInfo && (
                         <div className="flex items-center gap-2 text-xs text-green-600 mt-2">
                             <CheckCircle2 className="h-3 w-3" />
                             <span>Configuration loaded successfully</span>

@@ -5,8 +5,23 @@ import { validateEnvironment } from "./env-validation"
 // Validate environment before connecting
 validateEnvironment()
 
-const globalForPrisma = globalThis as unknown as { prisma: PrismaClient }
+const prismaClientSingleton = () => {
+    const url = process.env.DATABASE_URL_DEV || process.env.DATABASE_URL
+    console.log(`Initializing Prisma Client with URL: ${url?.replace(/:([^:@]+)@/, ":******@")}`)
 
-export const prisma = globalForPrisma.prisma || new PrismaClient()
+    return new PrismaClient({
+        datasources: {
+            db: {
+                url,
+            },
+        },
+    })
+}
 
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma
+declare global {
+    var prisma: undefined | ReturnType<typeof prismaClientSingleton>
+}
+
+export const prisma = globalThis.prisma ?? prismaClientSingleton()
+
+if (process.env.NODE_ENV !== "production") globalThis.prisma = prisma
