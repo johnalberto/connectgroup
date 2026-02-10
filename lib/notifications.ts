@@ -3,6 +3,8 @@ import { prisma } from "@/lib/prisma";
 import { TwilioService } from "@/lib/twilio-service";
 import { format } from "date-fns";
 
+// FORCE UPDATE: Adding comment to trigger git change
+// Defines supported notification types
 type NotificationType = 'CREATED' | 'UPDATED' | 'REMINDER';
 
 export async function sendMeetingNotification(meetingId: string, type: NotificationType) {
