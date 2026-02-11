@@ -30,7 +30,7 @@ export async function getLeaderGroups() {
         },
     })
 
-    return memberships.map((m) => m.group)
+    return memberships.map((m: any) => m.group)
 }
 
 export async function getGroupDetails(groupId: string) {
