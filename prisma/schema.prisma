@@ -26,7 +26,7 @@ model User {
   // New WhatsApp fields
   phone                 String?   @db.VarChar(20) // E.164 format
   whatsappNotifications Boolean   @default(true)
-  whatsappSandboxJoined Boolean   @default(false)
+
   
   // Relaciones
   accounts      Account[]
