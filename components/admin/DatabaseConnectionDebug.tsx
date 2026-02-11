@@ -20,11 +20,7 @@ export function DatabaseConnectionDebug() {
             const result = await getDatabaseConnectionInfo()
             if (result.success && result.data) {
                 // Handle potential legacy string response (though we just changed it)
-                if (typeof result.data === 'string') {
-                    setConnectionInfo({ url: result.data, source: 'Unknown' })
-                } else {
-                    setConnectionInfo(result.data)
-                }
+                setConnectionInfo(result.data)
 
                 toast({
                     title: "Connection Checked",
