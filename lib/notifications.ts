@@ -61,7 +61,7 @@ export async function sendMeetingNotification(meetingId: string, type: MeetingNo
         // I should check schema. 
 
         // Assuming for now we notify LEADERS.
-        const recipients = meeting.group.leaders.map(l => l.user).filter(u => u.phone && u.whatsappNotifications);
+        const recipients = meeting.group.leaders.map((l: any) => l.user).filter((u: any) => u.phone && u.whatsappNotifications);
 
         if (recipients.length === 0) {
             console.log("No recipients with phone numbers found for notification.");
@@ -86,7 +86,7 @@ export async function sendMeetingNotification(meetingId: string, type: MeetingNo
         }
 
         // 5. Send Messages
-        const results = await Promise.all(recipients.map(async (user) => {
+        const results = await Promise.all(recipients.map(async (user: any) => {
             // In a real app, use a queue.
             // Here we use TwilioService directly.
             // We can check if config.defaultTemplateId exists and try to use it, 
