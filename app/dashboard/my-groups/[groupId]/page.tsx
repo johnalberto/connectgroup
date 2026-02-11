@@ -60,7 +60,7 @@ export default async function GroupDetailsPage({
                     </CardHeader>
                     <CardContent>
                         <div className="text-sm font-medium flex flex-wrap gap-1">
-                            {group.leaders.sort((a, b) => (a.isPrimary === b.isPrimary ? 0 : a.isPrimary ? -1 : 1)).map((l, i, arr) => (
+                            {group.leaders.sort((a: any, b: any) => (a.isPrimary === b.isPrimary ? 0 : a.isPrimary ? -1 : 1)).map((l: any, i: any, arr: any) => (
                                 <span key={l.user.email} className="flex items-center gap-1">
                                     {l.user.name || l.user.email}
                                     {l.isPrimary && (
