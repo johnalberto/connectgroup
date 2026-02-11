@@ -26,7 +26,7 @@ export default function ConversationsPage() {
         // return () => clearInterval(interval)
     }, [])
 
-    const selectedConversation = conversations.find(c => c.user.id === selectedUserId)
+    const selectedConversation = conversations.find((c: any) => c.user.id === selectedUserId)
 
     return (
         <div className="flex h-[calc(100vh-100px)] border rounded-lg overflow-hidden bg-background">

@@ -133,8 +133,8 @@ export async function POST(req: Request) {
             }
         }));
 
-        const successCount = results.filter(r => r.success).length;
-        const failCount = results.filter(r => !r.success).length;
+        const successCount = results.filter((r: any) => r.success).length;
+        const failCount = results.filter((r: any) => !r.success).length;
 
         return NextResponse.json({
             success: true,

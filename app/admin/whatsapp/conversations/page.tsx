@@ -35,7 +35,7 @@ export default function ConversationsPage() {
         }
     };
 
-    const filteredConversations = conversations.filter(c => {
+    const filteredConversations = conversations.filter((c: any) => {
         if (!filter) return true;
         const searchLower = filter.toLowerCase();
         const nameMatch = c.user.name?.toLowerCase().includes(searchLower);
@@ -43,7 +43,7 @@ export default function ConversationsPage() {
         return nameMatch || phoneMatch;
     });
 
-    const selectedConversation = conversations.find(c => c.user.id === selectedUserId);
+    const selectedConversation = conversations.find((c: any) => c.user.id === selectedUserId);
 
     return (
         <div className="flex h-[calc(100vh-100px)] border rounded-lg bg-background overflow-hidden">

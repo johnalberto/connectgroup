@@ -104,7 +104,7 @@ export default async function MeetingsPage({
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {meetings.map((meeting) => (
+                            {meetings.map((meeting: any) => (
                                 <Card key={meeting.id} className="flex flex-col hover:shadow-md transition-shadow group-card">
                                     <CardHeader>
                                         <div className="flex items-start justify-between">
@@ -121,7 +121,7 @@ export default async function MeetingsPage({
                                             {/* Avatar Stack for Group Leaders */}
                                             <div className="pl-2">
                                                 <AvatarStack
-                                                    users={meeting.group.leaders.map(l => ({ name: l.user.name, image: l.user.image }))}
+                                                    users={meeting.group.leaders.map((l: any) => ({ name: l.user.name, image: l.user.image }))}
                                                     size="sm"
                                                     max={3}
                                                 />

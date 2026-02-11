@@ -24,12 +24,12 @@ export function MyMeetingsClient({ meetings }: { meetings: any[] }) {
 
     const now = new Date()
     const upcoming = meetings
-        .filter(m => new Date(m.date) >= now)
-        .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+        .filter((m: any) => new Date(m.date) >= now)
+        .sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime())
 
     const past = meetings
-        .filter(m => new Date(m.date) < now)
-        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+        .filter((m: any) => new Date(m.date) < now)
+        .sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime())
 
     return (
         <div className="flex flex-col gap-6">
@@ -83,7 +83,7 @@ export function MyMeetingsClient({ meetings }: { meetings: any[] }) {
                                     <p className="text-muted-foreground">No upcoming meetings.</p>
                                 ) : (
                                     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                                        {upcoming.map((meeting) => (
+                                        {upcoming.map((meeting: any) => (
                                             <MeetingCard key={meeting.id} meeting={meeting} />
                                         ))}
                                     </div>
@@ -95,7 +95,7 @@ export function MyMeetingsClient({ meetings }: { meetings: any[] }) {
                                 <div className="space-y-4">
                                     <h2 className="text-xl font-semibold text-muted-foreground">Past Meetings</h2>
                                     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 opacity-75">
-                                        {past.map((meeting) => (
+                                        {past.map((meeting: any) => (
                                             <MeetingCard key={meeting.id} meeting={meeting} />
                                         ))}
                                     </div>

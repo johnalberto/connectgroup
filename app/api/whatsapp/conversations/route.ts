@@ -56,12 +56,12 @@ export async function GET(req: NextRequest) {
         }));
 
         // Filter out conversations where user might be null (e.g. deleted users)
-        const validConversations = conversations.filter(c => c.user !== null);
+        const validConversations = conversations.filter((c: any) => c.user !== null);
 
         console.log(`Returning ${validConversations.length} valid conversations.`);
 
         // Sort by last message date
-        validConversations.sort((a, b) => {
+        validConversations.sort((a: any, b: any) => {
             const dateA = a.lastMessage?.createdAt.getTime() || 0;
             const dateB = b.lastMessage?.createdAt.getTime() || 0;
             return dateB - dateA;
