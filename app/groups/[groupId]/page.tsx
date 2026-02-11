@@ -57,10 +57,10 @@ export default async function PublicGroupDetailsPage({
     }
 
     // Split meetings if leader
-    const upcomingMeetings = group.meetings.filter(m => new Date(m.date) >= new Date());
+    const upcomingMeetings = group.meetings.filter((m: any) => new Date(m.date) >= new Date());
     // For past meetings, maybe we only want recent ones or ones without attendance?
     // Let's just show recent past meetings for now.
-    const pastMeetings = isLeader ? group.meetings.filter(m => new Date(m.date) < new Date()).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()) : [];
+    const pastMeetings = isLeader ? group.meetings.filter((m: any) => new Date(m.date) < new Date()).sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime()) : [];
 
 
     return (
@@ -93,7 +93,7 @@ export default async function PublicGroupDetailsPage({
                         <div className="flex items-center gap-2 text-muted-foreground">
                             <Users className="h-5 w-5" />
                             <span className="font-medium">
-                                Led by {group.leaders.map(l => l.user.name).join(" & ")}
+                                Led by {group.leaders.map((l: any) => l.user.name).join(" & ")}
                             </span>
                         </div>
                     </div>
@@ -109,7 +109,7 @@ export default async function PublicGroupDetailsPage({
                                 <p className="text-muted-foreground">No past meetings recorded recently.</p>
                             ) : (
                                 <div className="grid gap-4">
-                                    {pastMeetings.map(meeting => (
+                                    {pastMeetings.map((meeting: any) => (
                                         <Card key={meeting.id} className="bg-slate-50 border-slate-200">
                                             <CardHeader>
                                                 <div className="flex items-center justify-between">
@@ -156,7 +156,7 @@ export default async function PublicGroupDetailsPage({
                             </Card>
                         ) : (
                             <div className="grid gap-4">
-                                {upcomingMeetings.map(meeting => (
+                                {upcomingMeetings.map((meeting: any) => (
                                     <Card key={meeting.id}>
                                         <CardHeader>
                                             <div className="flex items-center justify-between">
