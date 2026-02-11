@@ -243,7 +243,7 @@ export async function getLeaderStats() {
         select: { groupId: true }
     })
 
-    const groupIds = leaderGroups.map(lg => lg.groupId)
+    const groupIds = leaderGroups.map((lg: any) => lg.groupId)
 
     if (groupIds.length === 0) {
         return {
@@ -264,7 +264,7 @@ export async function getLeaderStats() {
     let totalAttendance = 0
     let meetingsWithAttendance = 0
 
-    meetings.forEach(m => {
+    meetings.forEach((m: any) => {
         if (m.attendance) {
             totalAttendance += (m.attendance.adultsCount + m.attendance.kidsCount)
             meetingsWithAttendance++
@@ -304,7 +304,7 @@ export async function getGroupAttendanceHistory(groupId?: string) {
                 where: { userId: session.user.id! },
                 select: { groupId: true }
             })
-            const groupIds = leaderGroups.map(lg => lg.groupId)
+            const groupIds = leaderGroups.map((lg: any) => lg.groupId)
             whereClause.groupId = { in: groupIds }
         }
         // If admin and no groupId, fetch all
@@ -322,8 +322,8 @@ export async function getGroupAttendanceHistory(groupId?: string) {
     })
 
     return meetings
-        .filter(m => m.attendance) // Only meetings with attendance
-        .map(m => ({
+        .filter((m: any) => m.attendance) // Only meetings with attendance
+        .map((m: any) => ({
             date: m.date,
             dateStr: m.date.toISOString(),
             name: m.group.name,
