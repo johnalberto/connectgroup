@@ -28,8 +28,8 @@ export default async function DashboardPage() {
         ])
 
         const upcomingMeetings = meetings
-            .filter(m => new Date(m.date) >= new Date())
-            .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+            .filter((m: any) => new Date(m.date) >= new Date())
+            .sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime())
             .slice(0, 5)
 
         return (
