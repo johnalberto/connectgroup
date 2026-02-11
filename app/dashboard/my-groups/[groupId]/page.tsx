@@ -93,7 +93,7 @@ export default async function GroupDetailsPage({
                     </Card>
                 ) : (
                     <div className="grid gap-4">
-                        {group.meetings.map((meeting) => (
+                        {group.meetings.map((meeting: any) => (
                             <Card key={meeting.id}>
                                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                                     <div className="flex items-center gap-2">
