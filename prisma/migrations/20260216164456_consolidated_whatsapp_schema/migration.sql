@@ -1,5 +1,5 @@
 /*
-  Consolidated WhatsApp Schema Migration
+  Consolidated WhatsApp Schema Migration - SIMPLIFIED
   
   This migration consolidates the changes from:
   - 20260210144953_add_whatsapp_sandbox_joined (failed in production)
@@ -7,6 +7,8 @@
   
   IMPORTANT: This SQL is idempotent and safe to run on databases in any state.
   It will NOT delete any user data, only modify schema structure.
+  
+  NOTE: We skip enum modifications as they were already applied in the failed migration.
 */
 
 -- ============================================
@@ -29,68 +31,6 @@ DO $$ BEGIN
   CREATE TYPE "ApprovalStatus" AS ENUM ('pending', 'approved', 'rejected');
 EXCEPTION
   WHEN duplicate_object THEN null;
-END $$;
-
--- ============================================
--- ALTER ENUMS (MessageStatus and SenderType)
--- ============================================
-
--- Update MessageStatus enum to include new values
-DO $$ 
-BEGIN
-  -- Add 'queued' if it doesn't exist
-  IF NOT EXISTS (SELECT 1 FROM pg_enum WHERE enumlabel = 'queued' AND enumtypid = 'MessageStatus'::regtype) THEN
-    ALTER TYPE "MessageStatus" ADD VALUE 'queued';
-  END IF;
-  
-  -- Add 'sent' if it doesn't exist (lowercase version)
-  IF NOT EXISTS (SELECT 1 FROM pg_enum WHERE enumlabel = 'sent' AND enumtypid = 'MessageStatus'::regtype) THEN
-    ALTER TYPE "MessageStatus" ADD VALUE 'sent';
-  END IF;
-  
-  -- Add 'delivered' if it doesn't exist (lowercase version)
-  IF NOT EXISTS (SELECT 1 FROM pg_enum WHERE enumlabel = 'delivered' AND enumtypid = 'MessageStatus'::regtype) THEN
-    ALTER TYPE "MessageStatus" ADD VALUE 'delivered';
-  END IF;
-  
-  -- Add 'read' if it doesn't exist (lowercase version)
-  IF NOT EXISTS (SELECT 1 FROM pg_enum WHERE enumlabel = 'read' AND enumtypid = 'MessageStatus'::regtype) THEN
-    ALTER TYPE "MessageStatus" ADD VALUE 'read';
-  END IF;
-  
-  -- Add 'failed' if it doesn't exist (lowercase version)
-  IF NOT EXISTS (SELECT 1 FROM pg_enum WHERE enumlabel = 'failed' AND enumtypid = 'MessageStatus'::regtype) THEN
-    ALTER TYPE "MessageStatus" ADD VALUE 'failed';
-  END IF;
-  
-  -- Add 'undelivered' if it doesn't exist
-  IF NOT EXISTS (SELECT 1 FROM pg_enum WHERE enumlabel = 'undelivered' AND enumtypid = 'MessageStatus'::regtype) THEN
-    ALTER TYPE "MessageStatus" ADD VALUE 'undelivered';
-  END IF;
-  
-  -- Add 'received' if it doesn't exist
-  IF NOT EXISTS (SELECT 1 FROM pg_enum WHERE enumlabel = 'received' AND enumtypid = 'MessageStatus'::regtype) THEN
-    ALTER TYPE "MessageStatus" ADD VALUE 'received';
-  END IF;
-END $$;
-
--- Update SenderType enum to include new values
-DO $$ 
-BEGIN
-  -- Add 'admin' if it doesn't exist (lowercase version)
-  IF NOT EXISTS (SELECT 1 FROM pg_enum WHERE enumlabel = 'admin' AND enumtypid = 'SenderType'::regtype) THEN
-    ALTER TYPE "SenderType" ADD VALUE 'admin';
-  END IF;
-  
-  -- Add 'user' if it doesn't exist (lowercase version)
-  IF NOT EXISTS (SELECT 1 FROM pg_enum WHERE enumlabel = 'user' AND enumtypid = 'SenderType'::regtype) THEN
-    ALTER TYPE "SenderType" ADD VALUE 'user';
-  END IF;
-  
-  -- Add 'system' if it doesn't exist
-  IF NOT EXISTS (SELECT 1 FROM pg_enum WHERE enumlabel = 'system' AND enumtypid = 'SenderType'::regtype) THEN
-    ALTER TYPE "SenderType" ADD VALUE 'system';
-  END IF;
 END $$;
 
 -- ============================================
@@ -233,7 +173,17 @@ BEGIN
 END $$;
 
 -- Make userId nullable if it's not already
-ALTER TABLE "whatsapp_messages" ALTER COLUMN "userId" DROP NOT NULL;
+DO $$ 
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns 
+    WHERE table_name = 'whatsapp_messages' 
+    AND column_name = 'userId' 
+    AND is_nullable = 'NO'
+  ) THEN
+    ALTER TABLE "whatsapp_messages" ALTER COLUMN "userId" DROP NOT NULL;
+  END IF;
+END $$;
 
 -- Set default for status column
 ALTER TABLE "whatsapp_messages" ALTER COLUMN "status" SET DEFAULT 'queued';
