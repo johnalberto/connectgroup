@@ -46,10 +46,10 @@ COMMIT;
 -- AlterTable
 ALTER TABLE "message_templates" DROP COLUMN "body",
 ADD COLUMN     "approvalStatus" "ApprovalStatus" NOT NULL DEFAULT 'pending',
-ADD COLUMN     "category" "TemplateCategory" NOT NULL,
+ADD COLUMN     "category" "TemplateCategory" NOT NULL DEFAULT 'general',
 ADD COLUMN     "isActive" BOOLEAN NOT NULL DEFAULT true,
 ADD COLUMN     "language" VARCHAR(5) NOT NULL DEFAULT 'es',
-ADD COLUMN     "templateBody" TEXT NOT NULL,
+ADD COLUMN     "templateBody" TEXT NOT NULL DEFAULT '',
 ADD COLUMN     "twilioContentSid" VARCHAR(34),
 ADD COLUMN     "variables" JSONB,
 ALTER COLUMN "name" SET DATA TYPE VARCHAR(100),
@@ -60,7 +60,7 @@ ALTER TABLE "users" ADD COLUMN     "whatsappSandboxJoined" BOOLEAN NOT NULL DEFA
 ALTER COLUMN "phone" SET DATA TYPE VARCHAR(20);
 
 -- AlterTable
-ALTER TABLE "whatsapp_messages" ADD COLUMN     "direction" "MessageDirection" NOT NULL,
+ALTER TABLE "whatsapp_messages" ADD COLUMN     "direction" "MessageDirection" NOT NULL DEFAULT 'outbound',
 ADD COLUMN     "errorCode" VARCHAR(10),
 ADD COLUMN     "errorMessage" TEXT,
 ADD COLUMN     "mediaUrl" TEXT,
