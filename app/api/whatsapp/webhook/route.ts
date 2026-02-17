@@ -84,9 +84,11 @@ export async function POST(request: Request) {
             });
 
             if (!existing) {
+                console.log('🔍 Looking for user with phone:', from);
                 const user = await findUserByPhone(from);
+                console.log('👤 User found:', user ? `${user.name} (${user.id})` : 'No user found');
 
-                await prisma.whatsAppMessage.create({
+                const newMessage = await prisma.whatsAppMessage.create({
                     data: {
                         twilioMessageSid: messageSid,
                         userId: user?.id, // Nullable now
@@ -97,7 +99,7 @@ export async function POST(request: Request) {
                         mediaUrl: mediaUrl,
                     }
                 });
-                console.log("✅ Inbound message saved:", messageSid);
+                console.log("✅ Inbound message saved:", messageSid, "DB ID:", newMessage.id);
             } else {
                 console.log("ℹ️ Duplicate inbound message ignored:", messageSid);
             }
