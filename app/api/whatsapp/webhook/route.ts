@@ -80,7 +80,13 @@ export async function POST(request: Request) {
         });
 
         // 5. Determine type: Inbound vs Status Update
+        console.log('🔍 Determining message type...');
+        console.log('   - Body present:', body !== undefined);
+        console.log('   - NumMedia:', numMedia);
+        console.log('   - MessageStatus:', messageStatus);
+
         if (body !== undefined || numMedia > 0) {
+            console.log('📥 Processing as INBOUND MESSAGE');
             // INBOUND MESSAGE
             // It has Body (even empty) or Media. Status updates usually don't have Body/Media unless specified?
             // Actually, status updates have MessageStatus. Inbound messages have SmsStatus='received' usually.
