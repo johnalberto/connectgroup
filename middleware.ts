@@ -6,6 +6,12 @@ export default auth((req) => {
     const isLoggedIn = !!req.auth
     const isOnDashboard = req.nextUrl.pathname.startsWith('/dashboard')
     const isOnAdmin = req.nextUrl.pathname.startsWith('/admin')
+    const isWebhook = req.nextUrl.pathname.startsWith('/api/whatsapp/webhook')
+
+    // Allow webhooks without authentication
+    if (isWebhook) {
+        return
+    }
 
     if (isOnDashboard || isOnAdmin) {
         if (isLoggedIn) return
@@ -14,5 +20,10 @@ export default auth((req) => {
 })
 
 export const config = {
-    matcher: ['/dashboard/:path*', '/admin/:path*'],
+    matcher: [
+        '/dashboard/:path*',
+        '/admin/:path*',
+        // Explicitly exclude webhook routes
+        '/((?!api/whatsapp/webhook).*)',
+    ],
 }
