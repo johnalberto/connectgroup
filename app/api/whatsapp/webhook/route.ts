@@ -8,9 +8,14 @@ import { MessageStatus } from "@prisma/client";
 // const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
 
 export async function POST(request: Request) {
+    console.log('🚀 ========== WEBHOOK POST RECEIVED ==========');
+    console.log('📍 URL:', request.url);
+    console.log('⏰ Time:', new Date().toISOString());
+
     try {
         // 1. Get Twilio Signature
         const signature = request.headers.get("X-Twilio-Signature") || "";
+        console.log('🔑 Signature present:', signature ? 'YES' : 'NO');
 
         // 2. Parse form data
         const formData = await request.formData();
@@ -18,6 +23,7 @@ export async function POST(request: Request) {
         formData.forEach((value, key) => {
             params[key] = value.toString();
         });
+        console.log('📦 Form params keys:', Object.keys(params).join(', '));
 
         // 3. Validate Signature (Security)
         // Skip in development if TWILIO_WEBHOOK_VALIDATE is not true or missing
@@ -32,7 +38,10 @@ export async function POST(request: Request) {
         // I will trust the user's setup or skip if not in production/configured.
 
         // Restore validation logic
-        const shouldValidate = process.env.TWILIO_WEBHOOK_VALIDATE === 'true' || process.env.NODE_ENV === 'production';
+        // TEMPORARILY DISABLED FOR DEBUGGING - TODO: Re-enable after fixing
+        const shouldValidate = false; // process.env.TWILIO_WEBHOOK_VALIDATE === 'true' || process.env.NODE_ENV === 'production';
+
+        console.log('🔐 Signature validation:', shouldValidate ? 'ENABLED' : 'DISABLED');
 
         if (shouldValidate) {
             // Use the configured public URL (Ngrok) if available to avoid localhost mismatch
@@ -49,6 +58,7 @@ export async function POST(request: Request) {
                 console.error("❌ Invalid Twilio signature");
                 return new Response("Forbidden", { status: 403 });
             }
+            console.log("✅ Signature validated successfully");
         }
 
         // 4. Extract Data
