@@ -38,11 +38,15 @@ export async function POST(req: Request) {
             return NextResponse.json({ success: false, error: "User has no phone number" }, { status: 400 });
         }
 
+
         // Send Invitation
+        console.log('Attempting to send WhatsApp invitation to:', user.phone, 'for user:', user.name);
         const res = await TwilioService.sendWelcomeInvitation({
             to: user.phone,
             userName: user.name || "Friend"
         });
+
+        console.log('Twilio response:', JSON.stringify(res, null, 2));
 
         // Log message
         const dbMessage = await prisma.whatsAppMessage.create({
@@ -61,17 +65,20 @@ export async function POST(req: Request) {
         });
 
         if (res.success) {
+            console.log('Message logged to database with ID:', dbMessage.id);
             return NextResponse.json({
                 success: true,
                 messageSid: res.messageSid,
                 dbMessage
             });
         } else {
+            console.error('Twilio send failed:', res.error);
             return NextResponse.json({
                 success: false,
                 error: res.error
             }, { status: 500 });
         }
+
 
     } catch (error: any) {
         console.error("Send Invitation Error:", error);
