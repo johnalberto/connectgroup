@@ -34,6 +34,60 @@ EXCEPTION
 END $$;
 
 -- ============================================
+-- ALTER EXISTING ENUMS
+-- ============================================
+
+-- Add new values to MessageStatus enum (case-sensitive migration from uppercase to lowercase)
+DO $$ 
+BEGIN
+  -- Add lowercase versions if they don't exist
+  IF NOT EXISTS (SELECT 1 FROM pg_enum WHERE enumlabel = 'queued' AND enumtypid = 'MessageStatus'::regtype) THEN
+    ALTER TYPE "MessageStatus" ADD VALUE 'queued';
+  END IF;
+  
+  IF NOT EXISTS (SELECT 1 FROM pg_enum WHERE enumlabel = 'sent' AND enumtypid = 'MessageStatus'::regtype) THEN
+    ALTER TYPE "MessageStatus" ADD VALUE 'sent';
+  END IF;
+  
+  IF NOT EXISTS (SELECT 1 FROM pg_enum WHERE enumlabel = 'delivered' AND enumtypid = 'MessageStatus'::regtype) THEN
+    ALTER TYPE "MessageStatus" ADD VALUE 'delivered';
+  END IF;
+  
+  IF NOT EXISTS (SELECT 1 FROM pg_enum WHERE enumlabel = 'read' AND enumtypid = 'MessageStatus'::regtype) THEN
+    ALTER TYPE "MessageStatus" ADD VALUE 'read';
+  END IF;
+  
+  IF NOT EXISTS (SELECT 1 FROM pg_enum WHERE enumlabel = 'failed' AND enumtypid = 'MessageStatus'::regtype) THEN
+    ALTER TYPE "MessageStatus" ADD VALUE 'failed';
+  END IF;
+  
+  IF NOT EXISTS (SELECT 1 FROM pg_enum WHERE enumlabel = 'undelivered' AND enumtypid = 'MessageStatus'::regtype) THEN
+    ALTER TYPE "MessageStatus" ADD VALUE 'undelivered';
+  END IF;
+  
+  IF NOT EXISTS (SELECT 1 FROM pg_enum WHERE enumlabel = 'received' AND enumtypid = 'MessageStatus'::regtype) THEN
+    ALTER TYPE "MessageStatus" ADD VALUE 'received';
+  END IF;
+END $$;
+
+-- Add new values to SenderType enum (case-sensitive migration from uppercase to lowercase)
+DO $$ 
+BEGIN
+  -- Add lowercase versions if they don't exist
+  IF NOT EXISTS (SELECT 1 FROM pg_enum WHERE enumlabel = 'admin' AND enumtypid = 'SenderType'::regtype) THEN
+    ALTER TYPE "SenderType" ADD VALUE 'admin';
+  END IF;
+  
+  IF NOT EXISTS (SELECT 1 FROM pg_enum WHERE enumlabel = 'user' AND enumtypid = 'SenderType'::regtype) THEN
+    ALTER TYPE "SenderType" ADD VALUE 'user';
+  END IF;
+  
+  IF NOT EXISTS (SELECT 1 FROM pg_enum WHERE enumlabel = 'system' AND enumtypid = 'SenderType'::regtype) THEN
+    ALTER TYPE "SenderType" ADD VALUE 'system';
+  END IF;
+END $$;
+
+-- ============================================
 -- ALTER TABLE: users
 -- ============================================
 
