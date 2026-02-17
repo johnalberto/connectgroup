@@ -156,6 +156,14 @@ export async function POST(request: Request) {
     }
 }
 
+
 export async function GET() {
-    return Response.json({ status: "active", message: "WhatsApp Webhook Ready" });
+    const timestamp = new Date().toISOString();
+    console.log('🔔 Webhook GET request received at:', timestamp);
+    return Response.json({
+        status: "active",
+        message: "WhatsApp Webhook Ready",
+        timestamp,
+        environment: process.env.NODE_ENV || 'unknown'
+    });
 }
