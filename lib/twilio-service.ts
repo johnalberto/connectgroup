@@ -42,6 +42,12 @@ export const TwilioService = {
             const from = whatsappNumber?.startsWith('whatsapp:') ? whatsappNumber : `whatsapp:${whatsappNumber}`;
             const toNumber = to.startsWith('whatsapp:') ? to : `whatsapp:${to}`;
 
+            console.log('--- Twilio Send Attempt ---');
+            console.log('From:', from);
+            console.log('To:', toNumber);
+            console.log('ContentSid:', templateSid);
+            console.log('Variables:', JSON.stringify(variables));
+
             const message = await client.messages.create({
                 from,
                 to: toNumber,
@@ -50,13 +56,22 @@ export const TwilioService = {
                 statusCallback: process.env.TWILIO_STATUS_CALLBACK_URL
             });
 
+            console.log('--- Twilio Send Success ---');
+            console.log('MessageSid:', message.sid);
+            console.log('Status:', message.status);
+
             return {
                 success: true,
                 messageSid: message.sid,
                 status: message.status,
             };
         } catch (error: any) {
-            console.error('Twilio Template Error:', error);
+            console.error('--- Twilio Send FAILED ---');
+            console.error('Error Message:', error.message);
+            console.error('Twilio Code:', error.code);
+            console.error('HTTP Status:', error.status);
+            if (error.moreInfo) console.error('More Info:', error.moreInfo);
+
             return {
                 success: false,
                 error: error.message,
