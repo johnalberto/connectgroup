@@ -76,6 +76,8 @@ export async function POST(request: Request) {
             to,
             body: body?.substring(0, 50) + "...",
             messageStatus,
+            errorCode: params.ErrorCode,
+            errorMessage: params.ErrorMessage,
             numMedia,
         });
 
