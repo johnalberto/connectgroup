@@ -39,7 +39,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
                 if (!isValid) return null;
 
-                return user;
+                // Return user WITHOUT image to avoid oversized JWT (494 error on Vercel)
+                const { image, password: _pw, ...safeUser } = user;
+                return safeUser;
             }
         })
     ],
@@ -56,6 +58,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         async jwt({ token, user }) {
             if (user) {
                 token.role = user.role
+                token.enabled = (user as any).enabled
             }
             return token
         }
