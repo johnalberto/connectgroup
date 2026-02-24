@@ -4,6 +4,8 @@ import { MessageStatus } from '@/types/whatsapp';
 // Initialize Twilio client
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
+const messagingServiceSid = process.env.TWILIO_MESSAGING_SERVICE_SID;
+// Fallback: direct number for free-text replies (keeps backward compat)
 const whatsappNumber = process.env.TWILIO_WHATSAPP_SENDER;
 
 const client = (accountSid && authToken) ? twilio(accountSid, authToken) : null;
@@ -39,17 +41,18 @@ export const TwilioService = {
         if (!client) return { success: false, error: 'Twilio client not initialized' };
 
         try {
-            const from = whatsappNumber?.startsWith('whatsapp:') ? whatsappNumber : `whatsapp:${whatsappNumber}`;
             const toNumber = to.startsWith('whatsapp:') ? to : `whatsapp:${to}`;
 
-            console.log('--- Twilio Send Attempt ---');
-            console.log('From:', from);
+            console.log('--- Twilio Template Send Attempt ---');
+            console.log('MessagingServiceSid:', messagingServiceSid);
             console.log('To:', toNumber);
             console.log('ContentSid:', templateSid);
             console.log('Variables:', JSON.stringify(variables));
 
+            if (!messagingServiceSid) throw new Error('TWILIO_MESSAGING_SERVICE_SID is not set');
+
             const message = await client.messages.create({
-                from,
+                messagingServiceSid,
                 to: toNumber,
                 contentSid: templateSid,
                 contentVariables: JSON.stringify(variables),
@@ -87,11 +90,15 @@ export const TwilioService = {
         if (!client) return { success: false, error: 'Twilio client not initialized' };
 
         try {
-            const from = whatsappNumber?.startsWith('whatsapp:') ? whatsappNumber : `whatsapp:${whatsappNumber}`;
             const toNumber = to.startsWith('whatsapp:') ? to : `whatsapp:${to}`;
 
+            // Use Messaging Service if available, fallback to direct number
+            const senderArgs = messagingServiceSid
+                ? { messagingServiceSid }
+                : { from: whatsappNumber?.startsWith('whatsapp:') ? whatsappNumber : `whatsapp:${whatsappNumber}` };
+
             const message = await client.messages.create({
-                from,
+                ...senderArgs,
                 to: toNumber,
                 body,
                 mediaUrl,
